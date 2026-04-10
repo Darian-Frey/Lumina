@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
     QLineEdit, QPushButton, QVBoxLayout, QWidget,
 )
 
-from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET
+from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET, current_mid_colour
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.applied_maths.ap01_phase_portrait.physics import (
     PRESET_SYSTEMS, classify_fixed_point, compute_streamlines,
@@ -342,7 +342,7 @@ class PhasePortraitWidget(QWidget):
         arrows = pg.PlotCurveItem(
             x=np.array(all_x), y=np.array(all_y),
             connect="pairs",
-            pen=pg.mkPen("#888888", width=1.2),
+            pen=pg.mkPen(current_mid_colour(), width=1.2),
         )
         self._plot.plot_item.addItem(arrows)
         self._field_items.append(arrows)

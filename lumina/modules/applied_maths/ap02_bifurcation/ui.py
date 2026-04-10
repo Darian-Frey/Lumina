@@ -24,7 +24,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET
+from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET, current_mid_colour
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.applied_maths.ap02_bifurcation.physics import (
     DEFAULT_N_DISCARD,
@@ -168,7 +168,7 @@ class BifurcationWidget(QWidget):
         )
         self._line_lyap = self._plot_lyap.add_line(name="\u03bb(r)")
         self._plot_lyap.plot_item.addLine(
-            y=0, pen=pg.mkPen("#999999", style=Qt.PenStyle.DashLine),
+            y=0, pen=pg.mkPen(current_mid_colour(), style=Qt.PenStyle.DashLine),
         )
         self._plot_lyap.plot_item.setLimits(xMin=0, xMax=4.0)
         self._plot_lyap.plot_item.getAxis("bottom").enableAutoSIPrefix(False)

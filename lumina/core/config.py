@@ -159,6 +159,40 @@ CATEGORY_ICONS: Final[dict[str, str]] = {
 
 CONTROL_PANEL_WIDTH: Final[int] = 240
 
+
+def current_fg_colour() -> str:
+    """Return the foreground colour for the current theme.
+
+    Use this for plot elements (rods, arrows, box borders) that need
+    to contrast against the plot background.
+    """
+    try:
+        from lumina.launcher.theme import current_theme
+        theme = current_theme()
+    except ImportError:
+        theme = THEME_LIGHT
+    return THEME_PLOT_FOREGROUNDS.get(theme, "#000000")
+
+
+def current_mid_colour() -> str:
+    """Return a mid-tone colour for the current theme.
+
+    Use this for secondary plot elements (grid lines, arrow fields)
+    that should be visible but not dominant.
+    """
+    try:
+        from lumina.launcher.theme import current_theme
+        theme = current_theme()
+    except ImportError:
+        theme = THEME_LIGHT
+
+    mid_colours = {
+        THEME_LIGHT: "#888888",
+        THEME_DARK: "#999999",
+        THEME_HIGH_CONTRAST: "#cccccc",
+    }
+    return mid_colours.get(theme, "#888888")
+
 # ---------------------------------------------------------------------------
 # Shared button styles
 # ---------------------------------------------------------------------------

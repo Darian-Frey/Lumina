@@ -64,6 +64,8 @@ Particles bounce around elastically inside a container. The simulation measures 
         d.mkdir(parents=True, exist_ok=True)
         data = self._widget.get_data()
         np.savetxt(d / f"{self.ID}_speeds.csv", data["speeds"], header="speed", comments="")
+        self._widget._plot_box.export_png(d / f"{self.ID}_gas_box.png")
+        self._widget._plot_hist.export_png(d / f"{self.ID}_speed_distribution.png")
 
     def get_state(self) -> dict[str, Any]:
         s = super().get_state()

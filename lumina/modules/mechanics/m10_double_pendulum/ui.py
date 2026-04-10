@@ -23,7 +23,9 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET, DEFAULT_TIMER_MS
+from lumina.core.config import (
+    BTN_STYLE_COMPUTE, BTN_STYLE_RESET, DEFAULT_TIMER_MS, current_fg_colour,
+)
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.mechanics.m10_double_pendulum.physics import (
     DEFAULT_G,
@@ -180,7 +182,7 @@ class DoublePendulumWidget(QWidget):
         self._plot_pend.plot_item.setXRange(-3, 3)
         self._plot_pend.plot_item.setYRange(-3, 1)
         self._line_rods = self._plot_pend.plot_item.plot(
-            [], [], pen=pg.mkPen("#333333", width=3)
+            [], [], pen=pg.mkPen(current_fg_colour(), width=3)
         )
         self._dot_bobs = pg.ScatterPlotItem(
             size=14, brush=pg.mkBrush("#d62728")

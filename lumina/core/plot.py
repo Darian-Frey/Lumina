@@ -45,12 +45,20 @@ class SimPlotWidget(QWidget):
         title: str = "",
         x_label: str = "",
         y_label: str = "",
-        theme: str = THEME_LIGHT,
+        theme: str = "",
         colourblind: bool = False,
         show_grid: bool = True,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
+
+        # Auto-detect theme if not specified
+        if not theme:
+            try:
+                from lumina.launcher.theme import current_theme
+                theme = current_theme()
+            except ImportError:
+                theme = THEME_LIGHT
 
         self._theme = theme
         self._colourblind = colourblind

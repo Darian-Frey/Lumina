@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
     QDoubleSpinBox, QGroupBox, QHBoxLayout, QLabel, QPushButton,
     QSpinBox, QSplitter, QVBoxLayout, QWidget,
 )
-from lumina.core.config import BTN_STYLE_RESET, DEFAULT_TIMER_MS
+from lumina.core.config import BTN_STYLE_RESET, DEFAULT_TIMER_MS, current_fg_colour
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.thermodynamics.t01_ideal_gas.physics import (
     DEFAULT_BOX, DEFAULT_MASS, DEFAULT_N, DEFAULT_RADIUS,
@@ -91,7 +91,7 @@ class IdealGasWidget(QWidget):
         box_rect = pg.PlotCurveItem(
             x=[0, DEFAULT_BOX, DEFAULT_BOX, 0, 0],
             y=[0, 0, DEFAULT_BOX, DEFAULT_BOX, 0],
-            pen=pg.mkPen("#333333", width=2),
+            pen=pg.mkPen(current_fg_colour(), width=2),
         )
         self._plot_box.plot_item.addItem(box_rect)
         self._scatter = pg.ScatterPlotItem(size=6, brush=pg.mkBrush("#1f77b4"))

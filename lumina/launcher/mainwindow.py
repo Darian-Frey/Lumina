@@ -104,16 +104,17 @@ class SimulationCard(QFrame):
         self.setFrameShape(QFrame.Shape.StyledPanel)
 
         self._cat_colour = cat_colour
+
+        # Theme-adaptive card styles — inherit bg/text from the app theme
+        # Only category-specific colours are hardcoded
         self._normal_ss = (
-            f"QFrame#simCard {{ background-color: #ffffff;"
-            f" border: 2px solid #cccccc; border-radius: 8px;"
-            f" border-left: 5px solid {cat_colour}; }}"
+            f"QFrame#simCard {{ border: 2px solid palette(mid);"
+            f" border-radius: 8px; border-left: 5px solid {cat_colour}; }}"
             f"QFrame#simCard QLabel {{ background: transparent; border: none; }}"
         )
         self._hover_ss = (
-            f"QFrame#simCard {{ background-color: #f5f9ff;"
-            f" border: 2px solid {cat_colour}; border-radius: 8px;"
-            f" border-left: 5px solid {cat_colour}; }}"
+            f"QFrame#simCard {{ border: 2px solid {cat_colour};"
+            f" border-radius: 8px; border-left: 5px solid {cat_colour}; }}"
             f"QFrame#simCard QLabel {{ background: transparent; border: none; }}"
         )
 
@@ -145,7 +146,6 @@ class SimulationCard(QFrame):
 
         name_label = QLabel(sim_class.NAME)
         name_label.setFont(QFont("sans-serif", 11, QFont.Weight.Bold))
-        name_label.setStyleSheet("color: #1a1a1a;")
         name_label.setWordWrap(True)
         header.addWidget(name_label, 1)
         layout.addLayout(header)
@@ -154,7 +154,6 @@ class SimulationCard(QFrame):
         desc = QLabel(sim_class.DESCRIPTION)
         desc.setWordWrap(True)
         desc.setFont(QFont("sans-serif", 9))
-        desc.setStyleSheet("color: #555555;")
         layout.addWidget(desc, 1)
 
         # Row 3: level badge + category name
@@ -262,35 +261,25 @@ class MainWindow(QMainWindow):
         self._act_sep = toolbar.addSeparator()
         self._act_sep.setVisible(False)
 
-        _tb_style = (
-            "QPushButton { padding: 5px 12px; border-radius: 3px;"
-            " background-color: #e8e8e8; border: 1px solid #bbbbbb; }"
-            "QPushButton:hover { background-color: #d0d0d0; }"
-        )
-
         self._btn_reset = QPushButton("\u21ba  Reset")
-        self._btn_reset.setStyleSheet(_tb_style)
         self._btn_reset.setToolTip("Reset simulation to default parameters")
         self._btn_reset.clicked.connect(self._reset_sim)
         self._act_reset = toolbar.addWidget(self._btn_reset)
         self._act_reset.setVisible(False)
 
         self._btn_export = QPushButton("\u2913  Export")
-        self._btn_export.setStyleSheet(_tb_style)
         self._btn_export.setToolTip("Export plots as PNG and data as CSV")
         self._btn_export.clicked.connect(self._export_sim)
         self._act_export = toolbar.addWidget(self._btn_export)
         self._act_export.setVisible(False)
 
         self._btn_save = QPushButton("\u2b07  Save")
-        self._btn_save.setStyleSheet(_tb_style)
         self._btn_save.setToolTip("Save simulation state to a .lumina file")
         self._btn_save.clicked.connect(self._save_state)
         self._act_save = toolbar.addWidget(self._btn_save)
         self._act_save.setVisible(False)
 
         self._btn_load = QPushButton("\u2b06  Load")
-        self._btn_load.setStyleSheet(_tb_style)
         self._btn_load.setToolTip("Load simulation state from a .lumina file")
         self._btn_load.clicked.connect(self._load_state)
         self._act_load = toolbar.addWidget(self._btn_load)
@@ -652,7 +641,7 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _on_theme_changed(self) -> None:
-        """Handle theme selector change."""
+        """Handle theme selector change — re-launches active sim to apply new plot colours."""
         theme = self._theme_combo.currentData()
         if theme and theme != self._current_theme:
             self._current_theme = theme
@@ -660,6 +649,14 @@ class MainWindow(QMainWindow):
             app = QApplication.instance()
             if app is not None:
                 apply_theme(app, theme)
+
+            # Update dashboard cards
+            self._populate_cards(*self._get_current_filters())
+
+            # Re-launch the active simulation so plots pick up new theme
+            if self._active_sim is not None:
+                sim_class = type(self._active_sim)
+                self._launch_sim(sim_class)
 
     def _on_colourblind_toggled(self) -> None:
         """Handle colourblind palette toggle."""

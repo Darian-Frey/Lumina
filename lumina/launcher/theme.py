@@ -289,6 +289,14 @@ def save_colourblind_pref(enabled: bool) -> None:
     settings.setValue("colourblind", enabled)
 
 
+_current_theme: str = DEFAULT_THEME
+
+
+def current_theme() -> str:
+    """Return the currently active theme name."""
+    return _current_theme
+
+
 def apply_theme(app: QApplication, theme: str) -> None:
     """Apply a theme stylesheet to the entire application.
 
@@ -296,5 +304,7 @@ def apply_theme(app: QApplication, theme: str) -> None:
         app: The QApplication instance.
         theme: One of "light", "dark", "high_contrast".
     """
+    global _current_theme
+    _current_theme = theme
     stylesheet = _STYLESHEETS.get(theme, _STYLESHEETS[DEFAULT_THEME])
     app.setStyleSheet(stylesheet)
