@@ -18,6 +18,7 @@ env/
 .coverage
 htmlcov/
 .mypy_cache/
+tests/screenshots/
 
 # IDE
 .vscode/

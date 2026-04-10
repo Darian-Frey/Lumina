@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (
     QApplication,
     QComboBox,
     QFileDialog,
+    QFrame,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
@@ -76,10 +77,21 @@ _CATEGORY_NAMES: dict[str, str] = {
 }
 
 
-class SimulationCard(QWidget):
+class SimulationCard(QFrame):
     """A clickable card representing a single simulation in the dashboard grid."""
 
     clicked = pyqtSignal()
+
+    _NORMAL_STYLE = (
+        "QFrame#simCard { background-color: #ffffff;"
+        " border: 2px solid #bbbbbb; border-radius: 8px; }"
+        "QFrame#simCard QLabel { background: transparent; border: none; }"
+    )
+    _HOVER_STYLE = (
+        "QFrame#simCard { background-color: #eaf3fc;"
+        " border: 2px solid #1f77b4; border-radius: 8px; }"
+        "QFrame#simCard QLabel { background: transparent; border: none; }"
+    )
 
     def __init__(
         self,
@@ -88,9 +100,11 @@ class SimulationCard(QWidget):
     ) -> None:
         super().__init__(parent)
         self.sim_class = sim_class
+        self.setObjectName("simCard")
 
         self.setFixedSize(300, 140)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFrameShape(QFrame.Shape.StyledPanel)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(14, 12, 14, 10)
@@ -105,7 +119,8 @@ class SimulationCard(QWidget):
         id_label.setFixedWidth(50)
         id_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         id_label.setStyleSheet(
-            "background: #1f77b4; color: #ffffff; padding: 2px 6px; border-radius: 3px;"
+            "background-color: #1f77b4 !important; color: #ffffff;"
+            " padding: 2px 6px; border-radius: 3px;"
         )
         header.addWidget(id_label)
 
@@ -131,22 +146,14 @@ class SimulationCard(QWidget):
         level_label.setStyleSheet(f"color: {level_colour};")
         layout.addWidget(level_label)
 
-        self._normal_ss = (
-            "SimulationCard { background: #ffffff; border: 1px solid #cccccc;"
-            " border-radius: 8px; }"
-        )
-        self._hover_ss = (
-            "SimulationCard { background: #f0f7ff; border: 2px solid #1f77b4;"
-            " border-radius: 8px; }"
-        )
-        self.setStyleSheet(self._normal_ss)
+        self.setStyleSheet(self._NORMAL_STYLE)
 
     def enterEvent(self, event: Any) -> None:
-        self.setStyleSheet(self._hover_ss)
+        self.setStyleSheet(self._HOVER_STYLE)
         super().enterEvent(event)
 
     def leaveEvent(self, event: Any) -> None:
-        self.setStyleSheet(self._normal_ss)
+        self.setStyleSheet(self._NORMAL_STYLE)
         super().leaveEvent(event)
 
     def mousePressEvent(self, event: Any) -> None:

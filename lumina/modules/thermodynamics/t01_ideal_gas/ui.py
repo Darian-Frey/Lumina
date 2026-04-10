@@ -74,8 +74,16 @@ class IdealGasWidget(QWidget):
         sp = QSplitter(Qt.Orientation.Vertical)
         self._plot_box = SimPlotWidget(title="Gas Box")
         self._plot_box.plot_item.setAspectLocked(True)
-        self._plot_box.plot_item.setXRange(0, DEFAULT_BOX)
-        self._plot_box.plot_item.setYRange(0, DEFAULT_BOX)
+        self._plot_box.plot_item.setXRange(0, DEFAULT_BOX, padding=0.02)
+        self._plot_box.plot_item.setYRange(0, DEFAULT_BOX, padding=0.02)
+        self._plot_box.plot_item.enableAutoRange(False)
+        # Draw box boundary
+        box_rect = pg.PlotCurveItem(
+            x=[0, DEFAULT_BOX, DEFAULT_BOX, 0, 0],
+            y=[0, 0, DEFAULT_BOX, DEFAULT_BOX, 0],
+            pen=pg.mkPen("#333333", width=2),
+        )
+        self._plot_box.plot_item.addItem(box_rect)
         self._scatter = pg.ScatterPlotItem(size=6, brush=pg.mkBrush("#1f77b4"))
         self._plot_box.plot_item.addItem(self._scatter)
         sp.addWidget(self._plot_box)

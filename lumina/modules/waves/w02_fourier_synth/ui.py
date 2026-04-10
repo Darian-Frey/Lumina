@@ -97,13 +97,9 @@ class FourierSynthWidget(QWidget):
         self._plot_sum = SimPlotWidget(
             title="Partial Sum vs Target", x_label="x", y_label="y"
         )
-        self._line_target = self._plot_sum.add_line(
-            pen=self._plot_sum.plot_item.plot([], [], pen="r").opts.get("pen")
-        )
-        # Re-do properly
         self._plot_sum.clear()
         self._line_target = self._plot_sum.plot_item.plot(
-            [], [], pen={"color": "#999999", "width": 1, "style": Qt.PenStyle.DashLine},
+            [], [], pen={"color": "#d62728", "width": 2, "style": Qt.PenStyle.DashLine},
             name="target",
         )
         self._line_sum = self._plot_sum.add_line(name="partial sum", width=2)

@@ -165,8 +165,13 @@ def classify_fixed_point(
 def compute_trajectory(
     f_expr: str, g_expr: str, params: dict[str, float],
     x0: float, y0: float, t_max: float = 20.0, dt: float = 0.02,
+    bounds: tuple[float, float, float, float] | None = None,
 ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """Integrate a single trajectory from (x0, y0).
+
+    Args:
+        bounds: Optional (x_min, x_max, y_min, y_max). Integration terminates
+            when the trajectory leaves this region.
 
     Returns:
         (t, x, y) arrays.
@@ -178,9 +183,66 @@ def compute_trajectory(
             float(_eval_expr(g_expr, xv, yv, params)),
         ]
 
+    events = None
+    if bounds is not None:
+        xlo, xhi, ylo, yhi = bounds
+
+        def out_of_bounds(t: float, state: NDArray) -> float:
+            xv, yv = state
+            # Negative when outside bounds -> triggers event at zero crossing
+            dx = min(xv - xlo, xhi - xv)
+            dy = min(yv - ylo, yhi - yv)
+            return min(dx, dy)
+
+        out_of_bounds.terminal = True  # type: ignore[attr-defined]
+        out_of_bounds.direction = -1  # type: ignore[attr-defined]
+        events = [out_of_bounds]
+
     t_eval = np.arange(0, t_max, dt)
     sol = solve_ivp(
         system, (0, t_max), [x0, y0],
-        method="RK45", t_eval=t_eval, rtol=1e-8, atol=1e-10,
+        method="RK45", t_eval=t_eval, rtol=1e-6, atol=1e-8,
+        events=events,
     )
     return sol.t, sol.y[0], sol.y[1]
+
+
+def compute_streamlines(
+    f_expr: str, g_expr: str, params: dict[str, float],
+    x_range: tuple[float, float], y_range: tuple[float, float],
+    n_seeds: int = 3, t_max: float = 10.0, dt: float = 0.03,
+) -> list[tuple[NDArray[np.float64], NDArray[np.float64]]]:
+    """Compute streamlines from a grid of seed points.
+
+    Trajectories are terminated when they leave a padded version of the
+    visible range, so they never blow up to infinity.
+
+    Returns:
+        List of (x, y) array pairs, one per streamline.
+    """
+    pad_x = (x_range[1] - x_range[0]) * 0.15
+    pad_y = (y_range[1] - y_range[0]) * 0.15
+    bounds = (
+        x_range[0] - pad_x, x_range[1] + pad_x,
+        y_range[0] - pad_y, y_range[1] + pad_y,
+    )
+
+    margin_x = (x_range[1] - x_range[0]) * 0.15
+    margin_y = (y_range[1] - y_range[0]) * 0.15
+    seeds_x = np.linspace(x_range[0] + margin_x, x_range[1] - margin_x, n_seeds)
+    seeds_y = np.linspace(y_range[0] + margin_y, y_range[1] - margin_y, n_seeds)
+
+    results: list[tuple[NDArray[np.float64], NDArray[np.float64]]] = []
+    for sx in seeds_x:
+        for sy in seeds_y:
+            try:
+                _, x, y = compute_trajectory(
+                    f_expr, g_expr, params, sx, sy,
+                    t_max=t_max, dt=dt, bounds=bounds,
+                )
+                if len(x) > 2:
+                    results.append((x, y))
+            except (ValueError, RuntimeError):
+                continue
+
+    return results

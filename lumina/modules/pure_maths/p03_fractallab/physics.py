@@ -86,33 +86,23 @@ def colour_map(
     h, w = iterations.shape
     rgb = np.zeros((h, w, 3), dtype=np.uint8)
 
-    # Normalise to [0, 1] for escaped points
     escaped = iterations < max_iter
     if escaped.any():
-        norm = iterations[escaped].astype(np.float64) / max_iter
-        # HSV colour cycle
-        hue = norm * 360
-        # Simple HSV->RGB using sector method
-        c_val = np.ones_like(norm)  # saturation and value = 1
-        h_prime = hue / 60.0
-        x = c_val * (1 - np.abs(h_prime % 2 - 1))
+        # Log-scaled normalisation spreads colours across the full range
+        # instead of clustering near red for low iteration counts
+        iters = iterations[escaped].astype(np.float64)
+        norm = np.log1p(iters) / np.log1p(max_iter)
 
-        r = np.zeros_like(norm)
-        g = np.zeros_like(norm)
-        b = np.zeros_like(norm)
+        # Map through a smooth multi-stop colour palette
+        # Inspired by Ultra Fractal "classic" palette
+        t = norm * 6.0  # cycle through palette multiple times for richness
+        r = (0.5 + 0.5 * np.cos(2.0 * np.pi * (t + 0.0))) * 255
+        g = (0.5 + 0.5 * np.cos(2.0 * np.pi * (t + 0.33))) * 255
+        b = (0.5 + 0.5 * np.cos(2.0 * np.pi * (t + 0.67))) * 255
 
-        for lo, hi, rv, gv, bv in [
-            (0, 1, c_val, x, 0), (1, 2, x, c_val, 0), (2, 3, 0, c_val, x),
-            (3, 4, 0, x, c_val), (4, 5, x, 0, c_val), (5, 6, c_val, 0, x),
-        ]:
-            mask = (h_prime >= lo) & (h_prime < hi)
-            r[mask] = rv if isinstance(rv, int) else rv[mask]
-            g[mask] = gv if isinstance(gv, int) else gv[mask]
-            b[mask] = bv if isinstance(bv, int) else bv[mask]
-
-        rgb[escaped, 0] = (r * 255).astype(np.uint8)
-        rgb[escaped, 1] = (g * 255).astype(np.uint8)
-        rgb[escaped, 2] = (b * 255).astype(np.uint8)
+        rgb[escaped, 0] = np.clip(r, 0, 255).astype(np.uint8)
+        rgb[escaped, 1] = np.clip(g, 0, 255).astype(np.uint8)
+        rgb[escaped, 2] = np.clip(b, 0, 255).astype(np.uint8)
 
     # Inside set is black (already zeros)
     return rgb
