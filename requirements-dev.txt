@@ -1,0 +1,17 @@
+# Lumina — development dependencies
+# Run: pip install -r requirements.txt -r requirements-dev.txt
+
+# Testing
+pytest==8.1.1
+pytest-qt==4.3.1
+pytest-cov==5.0.0
+
+# Formatting and linting
+black==24.4.0
+ruff==0.4.2
+
+# Type checking
+mypy==1.9.0
+
+# Distribution
+pyinstaller==6.5.0

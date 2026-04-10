@@ -1,0 +1,20 @@
+# Lumina — pinned runtime dependencies
+# Generated for Python 3.11+ on Linux (ThinkPad P15 Gen 2i)
+# Run: pip install -r requirements.txt
+# Dev:  pip install -r requirements.txt -r requirements-dev.txt
+
+# GUI
+PyQt6==6.6.1
+PyQt6-Qt6==6.6.1
+PyQt6-sip==13.6.0
+
+# Plotting
+pyqtgraph==0.13.4
+matplotlib==3.8.4
+
+# Numerics
+numpy==1.26.4
+scipy==1.12.0
+
+# Utilities
+pathlib2==2.3.7        # backport safety — prefer pathlib from stdlib but pin for compat
