@@ -1,0 +1,87 @@
+"""M10 Double Pendulum — simulation wiring."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+from PyQt6.QtWidgets import QWidget
+
+from lumina.core.engine import Category, Effort, Level, SimulationBase
+from lumina.modules.mechanics.m10_double_pendulum.ui import DoublePendulumWidget
+
+
+class DoublePendulum(SimulationBase):
+    """M10 — Chaotic Double Pendulum simulation module."""
+
+    ID = "M10"
+    NAME = "Chaotic Double Pendulum"
+    CATEGORY = Category.MECHANICS
+    LEVEL = Level.UNIVERSITY
+    EFFORT = Effort.LOW
+    DESCRIPTION = "Double pendulum with trajectory tracing and energy conservation check."
+    TAGS = ["chaos", "pendulum", "Lagrangian", "trajectory", "energy"]
+
+    def __init__(self) -> None:
+        self._widget: DoublePendulumWidget | None = None
+
+    def build_ui(self) -> QWidget:
+        self._widget = DoublePendulumWidget()
+        return self._widget
+
+    def reset(self) -> None:
+        if self._widget is not None:
+            self._widget.stop()
+            self._widget.set_params({
+                "m1": 1.0, "m2": 1.0, "L1": 1.0, "L2": 1.0, "g": 9.81,
+                "theta1": 1.5708, "theta2": 3.1416,
+                "omega1": 0.0, "omega2": 0.0,
+                "speed": 5.0, "trail": 600.0,
+            })
+
+    def export(self, path: str) -> None:
+        if self._widget is None:
+            return
+        export_dir = Path(path)
+        export_dir.mkdir(parents=True, exist_ok=True)
+
+        data = self._widget.get_data()
+        csv_path = export_dir / f"{self.ID}_double_pendulum.csv"
+        header = "t,theta1,omega1,theta2,omega2,x2,y2,energy"
+        np.savetxt(
+            csv_path,
+            np.column_stack([
+                data["t"], data["theta1"], data["omega1"],
+                data["theta2"], data["omega2"],
+                data["x2"], data["y2"], data["energy"],
+            ]),
+            delimiter=",", header=header, comments="",
+        )
+
+        for name, plot in [
+            ("pendulum", self._widget._plot_pend),
+            ("trajectory", self._widget._plot_traj),
+            ("energy", self._widget._plot_energy),
+        ]:
+            plot.export_png(export_dir / f"{self.ID}_{name}.png")
+
+        self.log(f"Exported to {export_dir}")
+
+    def get_state(self) -> dict[str, Any]:
+        state = super().get_state()
+        if self._widget is not None:
+            state["params"] = self._widget.get_params()
+        return state
+
+    def set_state(self, state: dict[str, Any]) -> None:
+        if self._widget is not None and "params" in state:
+            self._widget.set_params(state["params"])
+
+    def on_hide(self) -> None:
+        if self._widget is not None:
+            self._widget.stop()
+
+    def on_close(self) -> None:
+        if self._widget is not None:
+            self._widget.stop()

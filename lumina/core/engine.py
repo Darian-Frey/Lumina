@@ -33,8 +33,10 @@ Usage
 from __future__ import annotations
 
 import abc
+import json
 import logging
-from typing import ClassVar
+from pathlib import Path
+from typing import Any, ClassVar
 
 from PyQt6.QtWidgets import QWidget
 
@@ -181,6 +183,77 @@ class SimulationBase(abc.ABC):
         Override to clean up QThread workers and QTimers.
         Default implementation does nothing.
         """
+
+    # ------------------------------------------------------------------
+    # Concrete helpers available to all subclasses
+    # ------------------------------------------------------------------
+
+    # ------------------------------------------------------------------
+    # State persistence — save/load simulation parameters
+    # ------------------------------------------------------------------
+
+    def get_state(self) -> dict[str, Any]:
+        """Return the current simulation state as a JSON-serialisable dict.
+
+        Override in subclasses to include simulation-specific parameters
+        (slider values, initial conditions, etc.). The base implementation
+        returns metadata only.
+
+        Returns
+        -------
+        dict
+            Simulation state suitable for JSON serialisation.
+        """
+        return {
+            "id": self.ID,
+            "name": self.NAME,
+            "category": self.CATEGORY,
+            "level": self.LEVEL,
+        }
+
+    def set_state(self, state: dict[str, Any]) -> None:
+        """Restore simulation state from a dict.
+
+        Override in subclasses to restore simulation-specific parameters.
+        The base implementation does nothing — subclasses should apply
+        the parameter values to their sliders/controls.
+
+        Parameters
+        ----------
+        state : dict
+            A state dict previously returned by get_state().
+        """
+
+    def save_state(self, path: str | Path) -> None:
+        """Save current simulation state to a JSON file.
+
+        Parameters
+        ----------
+        path : str or Path
+            Output file path.
+        """
+        path = Path(path)
+        state = self.get_state()
+        path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+        self.log(f"State saved to {path}", logging.INFO)
+
+    def load_state(self, path: str | Path) -> None:
+        """Load simulation state from a JSON file.
+
+        Parameters
+        ----------
+        path : str or Path
+            Input file path.
+        """
+        path = Path(path)
+        state = json.loads(path.read_text(encoding="utf-8"))
+        if state.get("id") != self.ID:
+            raise ValueError(
+                f"State file is for '{state.get('id')}', "
+                f"but this simulation is '{self.ID}'"
+            )
+        self.set_state(state)
+        self.log(f"State loaded from {path}", logging.INFO)
 
     # ------------------------------------------------------------------
     # Concrete helpers available to all subclasses

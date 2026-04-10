@@ -217,6 +217,8 @@ Simulations are delivered as standalone desktop modules under a unified launcher
 ### Phase 1 — Launch Set (v0.1)
 Ten simulations chosen for low build effort, broad visual appeal, and coverage across disciplines. Target: shippable in 4–6 weeks.
 
+**Simulations:**
+
 | ID | Name | Rationale |
 |----|------|-----------|
 | M04 | Simple Harmonic Motion | Universal A-level topic, highly visual |
@@ -230,20 +232,55 @@ Ten simulations chosen for low build effort, broad visual appeal, and coverage a
 | AP03 | Lorenz Attractor | Visually striking, trivial to implement |
 | P03 | FractalLab | Broadest possible audience, zoom is compelling |
 
+**Platform features (v0.1):**
+
+| Feature | Description | Effort |
+|---------|-------------|--------|
+| Launcher dashboard | Category sidebar, card grid, search/filter, level badges | Medium |
+| CSV + PNG export | One-click export on every simulation via `SimulationBase.export()` | Low |
+| Live equation display (Level 1) | LaTeX-rendered equation panel, parameter values update as sliders move | Medium |
+| Editable equations (Level 2) | User can modify the equation itself; simulation re-integrates live (AP01, AP03, W01, W02) | Medium |
+| JSON presets (save/load) | `.lumina` preset files — teachers share parameter configs with instructional text | Low |
+| Dark / light / high-contrast themes | Qt stylesheet theming, toggle in settings | Low |
+| Colourblind-safe palette toggle | Switchable colour palette in config, covers all plots | Low |
+| Session state save/load | Save and resume simulation state to file | Medium |
+
 ### Phase 2 — Core Expansion (v0.2–v0.3)
 Adds quantum, astrophysics, and electromagnetism pillars. Introduces RotoCurve as the first research-grade module.
 
-Priority additions: Q01, Q02, E01, E03, A01 (RotoCurve), A02, M01, W04, AP04, AP05
+**Simulations:** Q01, Q02, E01, E03, A01 (RotoCurve), A02, M01, W04, AP04, AP05
+
+**Platform features (v0.2–v0.3):**
+
+| Feature | Description | Effort |
+|---------|-------------|--------|
+| Side-by-side model comparison | Split-pane or overlay mode — run two models against same ICs | Medium |
+| Session replay | Record parameter exploration as timestamped sequence, playback for teaching | Medium |
+| Guided mode | Preset-driven walkthrough that locks controls and shows step-by-step prompts | Low |
 
 ### Phase 3 — University Tier (v0.4–v0.5)
 Medium-effort modules targeting first and second year undergraduates.
 
-Priority additions: Q04, Q07, E07, T06, A03, A08, P02, P04, AP06, AP07
+**Simulations:** Q04, Q07, E07, T06, A03, A08, P02, P04, AP06, AP07
+
+**Platform features (v0.4–v0.5):**
+
+| Feature | Description | Effort |
+|---------|-------------|--------|
+| Keyboard navigation | Full keyboard-driven control of all simulations (WCAG 2.1) | Medium |
+| Favourites and recents | Stored in QSettings, shown on launcher dashboard | Low |
 
 ### Phase 4 — Research & Special Topics (v1.0)
 High-effort modules and Special Topics. Monetised as premium tier.
 
-All remaining High effort and 🟣 modules.
+**Simulations:** All remaining High effort and 🟣 modules.
+
+**Platform features (v1.0):**
+
+| Feature | Description | Effort |
+|---------|-------------|--------|
+| LMS integration | Export results to Moodle / Canvas / Google Classroom | High |
+| Plugin API | Third-party module development support | High |
 
 ---
 
