@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
     QDoubleSpinBox, QGroupBox, QHBoxLayout, QLabel, QPushButton,
     QVBoxLayout, QWidget,
 )
+from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.thermodynamics.t02_maxwell_boltzmann.physics import (
     mb_pdf_3d, mean_speed, most_probable_speed, rms_speed,
@@ -20,13 +21,19 @@ class MaxwellBoltzmannWidget(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._build_ui()
+        self._setup_tooltips()
         self._update()
+
+    def _setup_tooltips(self) -> None:
+        self._spin_T.setToolTip("Temperature in Kelvin — higher shifts distribution to faster speeds")
+        self._btn.setToolTip("Recompute the distribution for current temperature")
+        self._btn_reset_view.setToolTip("Auto-range the plot to fit the curve")
 
     def _build_ui(self) -> None:
         main = QHBoxLayout(self)
         main.setContentsMargins(8, 8, 8, 8)
         ctrl_w = QWidget()
-        ctrl_w.setFixedWidth(220)
+        ctrl_w.setFixedWidth(240)
         ctrl = QVBoxLayout(ctrl_w)
         ctrl.setContentsMargins(4, 4, 4, 4)
 
@@ -43,9 +50,15 @@ class MaxwellBoltzmannWidget(QWidget):
         pl.addLayout(r)
         ctrl.addWidget(pg_grp)
 
-        self._btn = QPushButton("Update")
+        self._btn = QPushButton("Compute")
+        self._btn.setStyleSheet(BTN_STYLE_COMPUTE)
         self._btn.clicked.connect(self._update)
         ctrl.addWidget(self._btn)
+
+        self._btn_reset_view = QPushButton("Reset View")
+        self._btn_reset_view.setStyleSheet(BTN_STYLE_RESET)
+        self._btn_reset_view.clicked.connect(self._reset_view)
+        ctrl.addWidget(self._btn_reset_view)
 
         self._readout = QLabel()
         self._readout.setFont(QFont("monospace", 9))
@@ -64,9 +77,21 @@ class MaxwellBoltzmannWidget(QWidget):
                                     x_label="v (m/s)", y_label="f(v)")
         self._line = self._plot.add_line(name="f(v)", width=2)
         # Vertical markers
-        self._vmp_line = self._plot.plot_item.addLine(x=0, pen=pg.mkPen("#2ca02c", style=Qt.PenStyle.DashLine))
-        self._vavg_line = self._plot.plot_item.addLine(x=0, pen=pg.mkPen("#ff7f0e", style=Qt.PenStyle.DashLine))
-        self._vrms_line = self._plot.plot_item.addLine(x=0, pen=pg.mkPen("#d62728", style=Qt.PenStyle.DashLine))
+        self._vmp_line = self._plot.plot_item.addLine(x=0, pen=pg.mkPen("#2ca02c", width=2, style=Qt.PenStyle.DashLine))
+        self._vavg_line = self._plot.plot_item.addLine(x=0, pen=pg.mkPen("#ff7f0e", width=2, style=Qt.PenStyle.DashLine))
+        self._vrms_line = self._plot.plot_item.addLine(x=0, pen=pg.mkPen("#d62728", width=2, style=Qt.PenStyle.DashLine))
+        # Labels for the vertical markers
+        self._vmp_label = pg.TextItem("v_mp", color="#2ca02c", anchor=(0, 1))
+        self._vmp_label.setFont(QFont("sans-serif", 9, QFont.Weight.Bold))
+        self._plot.plot_item.addItem(self._vmp_label)
+        self._vavg_label = pg.TextItem("v_avg", color="#ff7f0e", anchor=(0, 1))
+        self._vavg_label.setFont(QFont("sans-serif", 9, QFont.Weight.Bold))
+        self._plot.plot_item.addItem(self._vavg_label)
+        self._vrms_label = pg.TextItem("v_rms", color="#d62728", anchor=(0, 1))
+        self._vrms_label.setFont(QFont("sans-serif", 9, QFont.Weight.Bold))
+        self._plot.plot_item.addItem(self._vrms_label)
+        # Zoom limits — speeds are always positive, PDF is always positive
+        self._plot.plot_item.setLimits(xMin=-50, yMin=-0.0005)
         main.addWidget(self._plot, 1)
 
     def _update(self) -> None:
@@ -82,6 +107,12 @@ class MaxwellBoltzmannWidget(QWidget):
         self._vmp_line.setValue(vmp)
         self._vavg_line.setValue(vavg)
         self._vrms_line.setValue(vrms)
+
+        # Position labels at the top of the curve
+        peak = float(np.max(fv)) if len(fv) > 0 else 1.0
+        self._vmp_label.setPos(vmp, peak * 0.95)
+        self._vavg_label.setPos(vavg, peak * 0.85)
+        self._vrms_label.setPos(vrms, peak * 0.75)
 
         self._readout.setText(
             f"v_mp  = {vmp:.1f} m/s\n"
@@ -100,6 +131,9 @@ class MaxwellBoltzmannWidget(QWidget):
         T = self._spin_T.value()
         v = np.linspace(0, rms_speed(DEFAULT_MASS, T) * 3, 500)
         return {"v": v, "fv": mb_pdf_3d(v, DEFAULT_MASS, T)}
+
+    def _reset_view(self) -> None:
+        self._plot.plot_item.autoRange()
 
     def stop(self) -> None:
         pass

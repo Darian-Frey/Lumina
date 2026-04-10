@@ -20,6 +20,35 @@ class FourierSynthesiser(SimulationBase):
     EFFORT = Effort.LOW
     DESCRIPTION = "Build waveforms from harmonics and watch the series converge."
     TAGS = ["Fourier", "harmonics", "series", "Gibbs", "square wave", "synthesis"]
+    HELP_TEXT = """# Fourier Synthesiser
+
+Build any waveform from sine harmonics and watch the series converge.
+
+## What it shows
+Joseph Fourier showed that any periodic function can be represented as a sum of sines and cosines. This module demonstrates how adding more harmonics progressively approximates the target waveform.
+
+## Controls
+- Target Waveform: choose square, triangle, or sawtooth
+- N (harmonics): number of Fourier terms to include (1-50)
+- Compute: update the plots
+- Reset View: auto-range both plots
+
+## Plots
+- Individual Harmonics: each sine component shown separately
+- Partial Sum vs Target: the blue curve is the Fourier approximation, the red dashed curve is the exact target waveform
+
+## Key concepts
+- Square wave: only odd harmonics, b_n = 4/(n*pi)
+- Triangle wave: only odd harmonics, b_n = 8*(-1)^((n-1)/2)/(n^2*pi^2)
+- Sawtooth wave: all harmonics, b_n = -2*(-1)^n/(n*pi)
+- Gibbs phenomenon: ~9% overshoot at discontinuities that persists as N increases
+- More harmonics = better approximation away from discontinuities
+
+## Try this
+- Start with N=1 and slowly increase — watch the shape emerge
+- Compare N=5 vs N=50 for the square wave
+- Look at the Gibbs overshoot near the jumps — it never goes away!
+"""
 
     def __init__(self) -> None:
         self._widget: FourierSynthWidget | None = None

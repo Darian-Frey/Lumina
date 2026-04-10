@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QSplitter, QVBoxLayout, QWidget,
 )
 
-from lumina.core.config import DEFAULT_TIMER_MS
+from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET, DEFAULT_TIMER_MS
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.mechanics.m04_shm.physics import (
     classify_damping, damped_shm, kinetic_energy, phase_space_ellipse,
@@ -40,13 +40,23 @@ class SHMWidget(QWidget):
         super().__init__(parent)
         self._t_anim: float = 0.0
         self._build_ui()
+        self._setup_tooltips()
         self._compute()
+
+    def _setup_tooltips(self) -> None:
+        self._spin_k.setToolTip("Spring constant — stiffer spring = higher frequency")
+        self._spin_m.setToolTip("Mass — heavier = lower frequency")
+        self._spin_A.setToolTip("Amplitude — maximum displacement from equilibrium")
+        self._spin_phi.setToolTip("Initial phase angle in radians")
+        self._spin_gamma.setToolTip("Damping coefficient — 0 for undamped, increase for damping")
+        self._btn_compute.setToolTip("Recompute with current parameters")
+        self._btn_reset_view.setToolTip("Auto-range all plots to fit the data")
 
     def _build_ui(self) -> None:
         main = QHBoxLayout(self)
         main.setContentsMargins(8, 8, 8, 8)
         ctrl_w = QWidget()
-        ctrl_w.setFixedWidth(220)
+        ctrl_w.setFixedWidth(240)
         ctrl = QVBoxLayout(ctrl_w)
         ctrl.setContentsMargins(4, 4, 4, 4)
 
@@ -70,9 +80,15 @@ class SHMWidget(QWidget):
         self._btn_play.clicked.connect(self._toggle)
         btn_row.addWidget(self._btn_play)
         self._btn_compute = QPushButton("Compute")
+        self._btn_compute.setStyleSheet(BTN_STYLE_COMPUTE)
         self._btn_compute.clicked.connect(self._compute)
         btn_row.addWidget(self._btn_compute)
         ctrl.addLayout(btn_row)
+
+        self._btn_reset_view = QPushButton("Reset View")
+        self._btn_reset_view.setStyleSheet(BTN_STYLE_RESET)
+        self._btn_reset_view.clicked.connect(self._reset_view)
+        ctrl.addWidget(self._btn_reset_view)
 
         self._readout = QLabel()
         self._readout.setFont(QFont("monospace", 9))
@@ -143,6 +159,21 @@ class SHMWidget(QWidget):
         )
         self._t_anim = 0.0
 
+        # Clamp zoom to sensible ranges based on current data
+        v_max = A * omega0
+        e_max = float(np.max(self._ke + self._pe)) * 1.2
+        pad = 0.1
+        self._plot_xt.plot_item.setLimits(
+            xMin=-1, xMax=22, yMin=-(A + pad), yMax=A + pad,
+        )
+        self._plot_phase.plot_item.setLimits(
+            xMin=-(A + pad), xMax=A + pad,
+            yMin=-(v_max + pad), yMax=v_max + pad,
+        )
+        self._plot_energy.plot_item.setLimits(
+            xMin=-1, xMax=22, yMin=-e_max * 0.1, yMax=e_max,
+        )
+
     def _advance(self) -> None:
         self._t_anim += DEFAULT_TIMER_MS / 1000.0
         idx = np.searchsorted(self._t, self._t_anim)
@@ -150,6 +181,11 @@ class SHMWidget(QWidget):
             self._t_anim = 0.0
             idx = 0
         self._dot_phase.setData([self._x[idx]], [self._v[idx]])
+
+    def _reset_view(self) -> None:
+        """Reset all plot views to auto-range."""
+        for plot in (self._plot_xt, self._plot_phase, self._plot_energy):
+            plot.plot_item.autoRange()
 
     def _toggle(self) -> None:
         if self._btn_play.isChecked():

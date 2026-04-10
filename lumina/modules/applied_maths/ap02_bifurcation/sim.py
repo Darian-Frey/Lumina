@@ -20,6 +20,33 @@ class BifurcationDiagram(SimulationBase):
     EFFORT = Effort.LOW
     DESCRIPTION = "Logistic map period-doubling route to chaos with Lyapunov exponent."
     TAGS = ["bifurcation", "logistic map", "chaos", "Feigenbaum", "Lyapunov"]
+    HELP_TEXT = """# Bifurcation Diagram
+
+Explore the period-doubling route to chaos in the logistic map.
+
+## What it shows
+The logistic map x_{n+1} = r * x_n * (1 - x_n) is one of the simplest systems that exhibits chaos. As the control parameter r increases, the system transitions from a stable fixed point through period-doubling bifurcations to full chaos.
+
+## Controls
+- r samples: number of r values to compute (higher = denser plot)
+- iterations: total iterations per r value
+- transient: iterations to discard before recording (removes initial transients)
+- x0: initial condition for the iteration
+- Compute: recompute the diagram for the currently visible r range
+- Reset View: return to the default [2.5, 4.0] range
+
+## How to use
+- The upper plot shows the bifurcation diagram (attractor values vs r)
+- The lower plot shows the Lyapunov exponent (positive = chaos, negative = stable)
+- Zoom into a region of interest, then press Compute to refine at higher resolution
+- Look for the Feigenbaum cascade: period 1 -> 2 -> 4 -> 8 -> chaos
+- The period-3 window near r = 3.83 is particularly interesting
+
+## Key concepts
+- Period doubling: the system visits 2^n distinct values per cycle
+- Feigenbaum constant: the ratio of successive bifurcation intervals converges to 4.669...
+- Lyapunov exponent: measures sensitivity to initial conditions
+"""
 
     def __init__(self) -> None:
         self._widget: BifurcationWidget | None = None

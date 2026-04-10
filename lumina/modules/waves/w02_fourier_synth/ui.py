@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
     QSlider, QSpinBox, QSplitter, QVBoxLayout, QWidget,
 )
 
+from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.waves.w02_fourier_synth.physics import (
     fourier_partial_sum, gibbs_overshoot,
@@ -31,14 +32,21 @@ class FourierSynthWidget(QWidget):
         super().__init__(parent)
         self._x = np.linspace(-np.pi, np.pi, 1000)
         self._build_ui()
+        self._setup_tooltips()
         self._update()
+
+    def _setup_tooltips(self) -> None:
+        self._combo.setToolTip("Choose the target waveform to approximate")
+        self._spin_n.setToolTip("Number of Fourier harmonics (1-50) — more = better fit")
+        self._btn_update.setToolTip("Update the plots with current settings")
+        self._btn_reset_view.setToolTip("Auto-range both plots to fit the data")
 
     def _build_ui(self) -> None:
         main = QHBoxLayout(self)
         main.setContentsMargins(8, 8, 8, 8)
 
         ctrl_w = QWidget()
-        ctrl_w.setFixedWidth(220)
+        ctrl_w.setFixedWidth(240)
         ctrl = QVBoxLayout(ctrl_w)
         ctrl.setContentsMargins(4, 4, 4, 4)
 
@@ -64,9 +72,15 @@ class FourierSynthWidget(QWidget):
         nhl.addLayout(row)
         ctrl.addWidget(nh)
 
-        self._btn_update = QPushButton("Update")
+        self._btn_update = QPushButton("Compute")
+        self._btn_update.setStyleSheet(BTN_STYLE_COMPUTE)
         self._btn_update.clicked.connect(self._update)
         ctrl.addWidget(self._btn_update)
+
+        self._btn_reset_view = QPushButton("Reset View")
+        self._btn_reset_view.setStyleSheet(BTN_STYLE_RESET)
+        self._btn_reset_view.clicked.connect(self._reset_view)
+        ctrl.addWidget(self._btn_reset_view)
 
         # Readout
         self._readout = QLabel()
@@ -104,6 +118,12 @@ class FourierSynthWidget(QWidget):
         )
         self._line_sum = self._plot_sum.add_line(name="partial sum", width=2)
         sp.addWidget(self._plot_sum)
+
+        # Zoom limits
+        for p in (self._plot_harmonics, self._plot_sum):
+            p.plot_item.setLimits(
+                xMin=-np.pi - 0.5, xMax=np.pi + 0.5, yMin=-2.5, yMax=2.5,
+            )
 
         main.addWidget(sp, 1)
 
@@ -164,6 +184,10 @@ class FourierSynthWidget(QWidget):
             "partial_sum": fourier_partial_sum(self._x, coeffs),
             "target": target_waveform(self._x, kind),
         }
+
+    def _reset_view(self) -> None:
+        self._plot_harmonics.plot_item.autoRange()
+        self._plot_sum.plot_item.autoRange()
 
     def stop(self) -> None:
         pass

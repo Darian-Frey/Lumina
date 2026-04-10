@@ -15,6 +15,35 @@ class IdealGas(SimulationBase):
     EFFORT = Effort.LOW
     DESCRIPTION = "Particle box with pressure, temperature, and volume controls."
     TAGS = ["ideal gas", "PV=nRT", "particles", "temperature", "pressure"]
+    HELP_TEXT = """# Ideal Gas Simulation
+
+A 2D molecular dynamics simulation of an ideal gas in a box.
+
+## What it shows
+Particles bounce around elastically inside a container. The simulation measures temperature from kinetic energy and pressure from wall collisions, demonstrating the microscopic origin of the ideal gas law PV = NkT.
+
+## Controls
+- N particles: number of gas molecules (10-500)
+- T (K): initial temperature — sets the Maxwell-Boltzmann speed distribution
+- Play/Pause: start or stop the simulation
+- Reset: reinitialise all particles with new random positions and velocities
+- Reset View: restore default plot ranges
+
+## Plots
+- Gas Box: real-time particle positions inside the container (black border)
+- Speed Distribution: histogram of particle speeds, updating live
+
+## Readout
+- T: measured temperature from kinetic energy
+- P: measured pressure from wall impulses
+- N: number of particles
+
+## Key concepts
+- Temperature is proportional to average kinetic energy: T = m<v^2>/(2k_B)
+- Pressure comes from momentum transfer at the walls
+- The speed distribution should approach the Maxwell-Boltzmann curve
+- More particles = smoother statistics, better agreement with theory
+"""
 
     def __init__(self) -> None:
         self._widget: IdealGasWidget | None = None

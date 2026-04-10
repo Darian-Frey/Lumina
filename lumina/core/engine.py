@@ -104,6 +104,7 @@ class SimulationBase(abc.ABC):
     EFFORT: ClassVar[str]
     DESCRIPTION: ClassVar[str]
     TAGS: ClassVar[list[str]] = []
+    HELP_TEXT: ClassVar[str] = ""
 
     def __init_subclass__(cls, **kwargs: object) -> None:
         """Validate that required class attributes are defined on subclasses."""

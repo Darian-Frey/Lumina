@@ -15,6 +15,36 @@ class MaxwellBoltzmann(SimulationBase):
     EFFORT = Effort.LOW
     DESCRIPTION = "Speed distribution updating live as temperature changes."
     TAGS = ["Maxwell-Boltzmann", "temperature", "speed distribution", "kinetic theory"]
+    HELP_TEXT = """# Maxwell-Boltzmann Distribution
+
+Visualise how molecular speeds are distributed at different temperatures.
+
+## What it shows
+The Maxwell-Boltzmann distribution describes the probability of finding a molecule with a given speed in an ideal gas at thermal equilibrium. The shape depends only on temperature and molecular mass.
+
+## Controls
+- T (K): temperature — higher T shifts the distribution to faster speeds
+- Compute: update the distribution curve
+- Reset View: auto-range the plot
+
+## Plot
+- Blue curve: the Maxwell-Boltzmann probability density f(v)
+- Green dashed line (v_mp): most probable speed — peak of the distribution
+- Orange dashed line (v_avg): mean speed
+- Red dashed line (v_rms): root-mean-square speed
+
+## Key equations
+- f(v) = 4*pi*(m/2*pi*k_B*T)^(3/2) * v^2 * exp(-m*v^2/(2*k_B*T))
+- v_mp = sqrt(2*k_B*T/m) — most probable speed
+- v_avg = sqrt(8*k_B*T/(pi*m)) — mean speed
+- v_rms = sqrt(3*k_B*T/m) — root-mean-square speed
+- Always: v_mp < v_avg < v_rms
+
+## Try this
+- Compare T=300K (room temperature) with T=1000K
+- Notice how the peak shifts right and flattens as T increases
+- The area under the curve is always 1 (normalised probability)
+"""
 
     def __init__(self) -> None:
         self._widget: MaxwellBoltzmannWidget | None = None

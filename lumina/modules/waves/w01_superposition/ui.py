@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
     QSplitter, QVBoxLayout, QWidget,
 )
 
-from lumina.core.config import DEFAULT_TIMER_MS
+from lumina.core.config import BTN_STYLE_RESET, DEFAULT_TIMER_MS, PALETTE_STANDARD
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.waves.w01_superposition.physics import (
     DEFAULT_N_POINTS, DEFAULT_X_MAX, beat_frequency,
@@ -24,22 +24,36 @@ MAX_WAVES = 5
 
 class WaveControl(QGroupBox):
     def __init__(self, idx: int, parent: QWidget | None = None) -> None:
-        super().__init__(f"Wave {idx + 1}", parent)
+        colour = PALETTE_STANDARD[idx % len(PALETTE_STANDARD)]
+        super().__init__(parent)
         self.setCheckable(True)
         self.setChecked(idx == 0)
+
+        # Colour stripe on the title to match the plot line
+        self.setStyleSheet(
+            f"QGroupBox {{ border-left: 4px solid {colour};"
+            f" margin-top: 4px; padding-top: 10px; }}"
+            f"QGroupBox::title {{ color: {colour}; font-weight: bold;"
+            f" subcontrol-origin: margin; left: 6px; padding: 0 2px; }}"
+        )
+        self.setTitle(f"Wave {idx + 1}")
+
         lay = QVBoxLayout(self)
+        lay.setContentsMargins(4, 2, 4, 2)
+        lay.setSpacing(1)
 
         def row(lbl: str, lo: float, hi: float, val: float) -> QDoubleSpinBox:
             r = QHBoxLayout()
             l = QLabel(lbl)
-            l.setFixedWidth(45)
+            l.setFixedWidth(50)
+            l.setFont(QFont("sans-serif", 9))
             r.addWidget(l)
             s = QDoubleSpinBox()
             s.setRange(lo, hi)
             s.setValue(val)
             s.setDecimals(2)
             s.setSingleStep(0.1)
-            s.setFixedWidth(70)
+            s.setFixedWidth(75)
             r.addWidget(s)
             lay.addLayout(r)
             return s
@@ -55,13 +69,22 @@ class WaveSuperpositionWidget(QWidget):
         self._t: float = 0.0
         self._x = np.linspace(0, DEFAULT_X_MAX, DEFAULT_N_POINTS)
         self._build_ui()
+        self._setup_tooltips()
         self._update_plots()
+
+    def _setup_tooltips(self) -> None:
+        for i, wc in enumerate(self._wcs):
+            wc.spin_A.setToolTip(f"Amplitude of wave {i+1}")
+            wc.spin_freq.setToolTip(f"Frequency of wave {i+1} in Hz")
+            wc.spin_phase.setToolTip(f"Phase offset of wave {i+1} in radians")
+        self._btn_play.setToolTip("Animate the waves in real time")
+        self._btn_reset_view.setToolTip("Auto-range both plots to fit the data")
 
     def _build_ui(self) -> None:
         main = QHBoxLayout(self)
         main.setContentsMargins(8, 8, 8, 8)
         ctrl_w = QWidget()
-        ctrl_w.setFixedWidth(220)
+        ctrl_w.setFixedWidth(240)
         ctrl = QVBoxLayout(ctrl_w)
         ctrl.setContentsMargins(4, 4, 4, 4)
 
@@ -88,6 +111,11 @@ class WaveSuperpositionWidget(QWidget):
         btn_row.addWidget(self._btn_play)
         ctrl.addLayout(btn_row)
 
+        self._btn_reset_view = QPushButton("Reset View")
+        self._btn_reset_view.setStyleSheet(BTN_STYLE_RESET)
+        self._btn_reset_view.clicked.connect(self._reset_view)
+        ctrl.addWidget(self._btn_reset_view)
+
         self._readout = QLabel()
         self._readout.setFont(QFont("monospace", 9))
         ctrl.addWidget(self._readout)
@@ -96,13 +124,26 @@ class WaveSuperpositionWidget(QWidget):
 
         sp = QSplitter(Qt.Orientation.Vertical)
         self._plot_ind = SimPlotWidget(title="Individual Waves", x_label="x", y_label="y")
-        self._lines_ind = [self._plot_ind.add_line() for _ in range(MAX_WAVES)]
+        # Fixed colour per wave index — matches the panel colour stripes
+        import pyqtgraph as _pg
+        self._lines_ind = []
+        for i in range(MAX_WAVES):
+            colour = PALETTE_STANDARD[i % len(PALETTE_STANDARD)]
+            line = self._plot_ind.plot_item.plot(
+                [], [], pen=_pg.mkPen(colour, width=2),
+            )
+            self._lines_ind.append(line)
         sp.addWidget(self._plot_ind)
 
         self._plot_sum = SimPlotWidget(title="Superposition", x_label="x", y_label="y")
         self._line_sum = self._plot_sum.add_line(width=2)
         sp.addWidget(self._plot_sum)
         main.addWidget(sp, 1)
+
+        # Zoom limits — x in [0, x_max], y in [-max_amplitude*waves, +same]
+        max_y = 5.0 * MAX_WAVES  # worst case all waves at max amplitude
+        for p in (self._plot_ind, self._plot_sum):
+            p.plot_item.setLimits(xMin=-1, xMax=DEFAULT_X_MAX + 1, yMin=-max_y, yMax=max_y)
 
         self._timer = QTimer()
         self._timer.setInterval(DEFAULT_TIMER_MS)
@@ -121,12 +162,19 @@ class WaveSuperpositionWidget(QWidget):
 
     def _update_plots(self) -> None:
         waves = self._get_waves()
-        for i, line in enumerate(self._lines_ind):
-            if i < len(waves):
-                A, k, w, phi = waves[i]
-                line.setData(self._x, sine_wave(self._x, self._t, A, k, w, phi))
+        # Update each line from its own panel — colour stays fixed per index
+        for i, wc in enumerate(self._wcs):
+            if wc.isChecked() and wc.spin_A.value() > 0:
+                f = wc.spin_freq.value()
+                A = wc.spin_A.value()
+                k = wavelength_to_k(1.0 / f) if f > 0 else 0.0
+                omega = frequency_to_omega(f)
+                phi = wc.spin_phase.value()
+                self._lines_ind[i].setData(
+                    self._x, sine_wave(self._x, self._t, A, k, omega, phi),
+                )
             else:
-                line.setData([], [])
+                self._lines_ind[i].setData([], [])
         self._line_sum.setData(self._x, superposition(self._x, self._t, waves))
         freqs = [wc.spin_freq.value() for wc in self._wcs
                  if wc.isChecked() and wc.spin_A.value() > 0]
@@ -192,6 +240,10 @@ class WaveSuperpositionWidget(QWidget):
     def get_data(self) -> dict[str, np.ndarray]:
         waves = self._get_waves()
         return {"x": self._x, "y_sum": superposition(self._x, self._t, waves)}
+
+    def _reset_view(self) -> None:
+        self._plot_ind.plot_item.autoRange()
+        self._plot_sum.plot_item.autoRange()
 
     def stop(self) -> None:
         self._timer.stop()

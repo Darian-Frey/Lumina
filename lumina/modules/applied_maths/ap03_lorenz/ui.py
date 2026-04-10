@@ -29,7 +29,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from lumina.core.config import DEFAULT_TIMER_MS, THEME_LIGHT
+from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET, DEFAULT_TIMER_MS
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.applied_maths.ap03_lorenz.physics import (
     DEFAULT_BETA,
@@ -104,7 +104,22 @@ class LorenzWidget(QWidget):
         self._trail_length: int = 500
 
         self._build_ui()
+        self._setup_tooltips()
         self._compute()
+
+    def _setup_tooltips(self) -> None:
+        self._spin_sigma.setToolTip("Prandtl number — controls rotation rate (default 10)")
+        self._spin_rho.setToolTip("Rayleigh number — controls driving force (default 28)")
+        self._spin_beta.setToolTip("Geometry factor — related to aspect ratio (default 8/3)")
+        self._spin_x0.setToolTip("Initial x position")
+        self._spin_y0.setToolTip("Initial y position")
+        self._spin_z0.setToolTip("Initial z position")
+        self._spin_speed.setToolTip("Animation frames per tick — higher = faster playback")
+        self._spin_trail.setToolTip("Number of points in the animated trail")
+        self._btn_play.setToolTip("Start or pause the trajectory animation")
+        self._btn_restart.setToolTip("Reset animation to t=0")
+        self._btn_compute.setToolTip("Recompute the trajectory with current parameters")
+        self._btn_reset_view.setToolTip("Auto-range all four plots to fit the data")
 
     def _build_ui(self) -> None:
         """Construct the full UI layout."""
@@ -172,8 +187,14 @@ class LorenzWidget(QWidget):
 
         # Recompute button
         self._btn_compute = QPushButton("Recompute")
+        self._btn_compute.setStyleSheet(BTN_STYLE_COMPUTE)
         self._btn_compute.clicked.connect(self._compute)
         ctrl_layout.addWidget(self._btn_compute)
+
+        self._btn_reset_view = QPushButton("Reset View")
+        self._btn_reset_view.setStyleSheet(BTN_STYLE_RESET)
+        self._btn_reset_view.clicked.connect(self._reset_view)
+        ctrl_layout.addWidget(self._btn_reset_view)
 
         # Equation display
         eq_group = QGroupBox("Equations")
@@ -296,6 +317,11 @@ class LorenzWidget(QWidget):
         """Restart animation from the beginning."""
         self._frame = 0
         self._compute()
+
+    def _reset_view(self) -> None:
+        """Reset all plot views to auto-range."""
+        for plot in (self._plot_xz, self._plot_xy, self._plot_ts, self._plot_div):
+            plot.plot_item.autoRange()
 
     def _advance_frame(self) -> None:
         """Advance the animation by one step."""

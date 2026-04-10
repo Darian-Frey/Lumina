@@ -22,6 +22,37 @@ class DoublePendulum(SimulationBase):
     EFFORT = Effort.LOW
     DESCRIPTION = "Double pendulum with trajectory tracing and energy conservation check."
     TAGS = ["chaos", "pendulum", "Lagrangian", "trajectory", "energy"]
+    HELP_TEXT = """# Chaotic Double Pendulum
+
+A simple mechanical system that exhibits chaotic behaviour.
+
+## What it shows
+Two rigid rods connected end-to-end with point masses at each joint. Despite the simple setup, the motion is chaotic for most initial conditions — tiny changes in starting angles lead to completely different trajectories.
+
+## Controls
+- m1, m2 (kg): masses of the first and second bobs
+- L1, L2 (m): lengths of the first and second rods
+- g (m/s^2): gravitational acceleration
+- theta1, theta2 (rad): initial angles (0 = hanging straight down)
+- omega1, omega2: initial angular velocities
+- speed: animation playback speed
+- trail: length of the trajectory trail on the second bob
+- Play/Pause: start or stop the animation
+- Restart: reset to initial conditions and recompute
+- Recompute: recalculate with current parameters
+- Reset View: auto-range all plots
+
+## Plots
+- Double Pendulum: real-time animation showing the rods, bobs, and trajectory trail
+- Tip Trajectory: the path traced by the second bob's tip
+- Total Energy: should remain approximately constant (conservation check)
+
+## Try this
+- Set theta1 = pi/2, theta2 = pi for dramatic chaotic motion
+- Compare theta2 = 3.14 vs theta2 = 3.15 — watch the trajectories diverge
+- Set both angles small (e.g. 0.1) for nearly periodic behaviour
+- Make m2 >> m1 to see the first bob dragged around by the second
+"""
 
     def __init__(self) -> None:
         self._widget: DoublePendulumWidget | None = None

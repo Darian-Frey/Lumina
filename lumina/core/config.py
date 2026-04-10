@@ -124,3 +124,53 @@ LEVEL_COLOURS: Final[dict[str, str]] = {
 # ---------------------------------------------------------------------------
 
 PRESET_EXTENSION: Final[str] = ".lumina"
+
+# ---------------------------------------------------------------------------
+# Category display colours and icons (for dashboard cards)
+# ---------------------------------------------------------------------------
+
+CATEGORY_COLOURS: Final[dict[str, str]] = {
+    "mechanics": "#2196F3",
+    "waves": "#00BCD4",
+    "electromagnetism": "#FF9800",
+    "thermodynamics": "#F44336",
+    "quantum": "#9C27B0",
+    "astrophysics": "#3F51B5",
+    "pure_maths": "#4CAF50",
+    "applied_maths": "#607D8B",
+    "special_topics": "#795548",
+}
+
+CATEGORY_ICONS: Final[dict[str, str]] = {
+    "mechanics": "\u2699",      # gear
+    "waves": "\u223f",          # sine wave
+    "electromagnetism": "\u26a1",  # lightning
+    "thermodynamics": "\u2668",   # hot springs
+    "quantum": "\u269b",         # atom
+    "astrophysics": "\u2b50",    # star
+    "pure_maths": "\u2261",      # triple bar
+    "applied_maths": "\u222b",   # integral
+    "special_topics": "\u2623",  # biohazard
+}
+
+# ---------------------------------------------------------------------------
+# Standard control panel width
+# ---------------------------------------------------------------------------
+
+CONTROL_PANEL_WIDTH: Final[int] = 240
+
+# ---------------------------------------------------------------------------
+# Shared button styles
+# ---------------------------------------------------------------------------
+
+BTN_STYLE_COMPUTE: Final[str] = (
+    "QPushButton { font-weight: bold; padding: 8px; "
+    "background-color: #1f77b4; color: white; border-radius: 4px; }"
+    "QPushButton:hover { background-color: #1a6aa5; }"
+)
+
+BTN_STYLE_RESET: Final[str] = (
+    "QPushButton { font-weight: bold; padding: 6px; "
+    "background-color: #ff7f0e; color: white; border-radius: 4px; }"
+    "QPushButton:hover { background-color: #e06600; }"
+)

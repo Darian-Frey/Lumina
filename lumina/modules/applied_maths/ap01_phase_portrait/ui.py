@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
     QLineEdit, QPushButton, QVBoxLayout, QWidget,
 )
 
+from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.applied_maths.ap01_phase_portrait.physics import (
     PRESET_SYSTEMS, classify_fixed_point, compute_streamlines,
@@ -47,14 +48,22 @@ class PhasePortraitWidget(QWidget):
         self._default_xr: tuple[float, float] = (-3, 3)
         self._default_yr: tuple[float, float] = (-3, 3)
         self._build_ui()
+        self._setup_tooltips()
         self._on_preset_changed()
+
+    def _setup_tooltips(self) -> None:
+        self._combo.setToolTip("Choose a preset ODE system or edit the equations below")
+        self._edit_f.setToolTip("Expression for dx/dt — use x, y, and named parameters")
+        self._edit_g.setToolTip("Expression for dy/dt — use x, y, and named parameters")
+        self._chk_streamlines.setToolTip("Show auto-computed trajectories from seed points")
+        self._chk_field.setToolTip("Show direction arrows on a grid")
 
     def _build_ui(self) -> None:
         main = QHBoxLayout(self)
         main.setContentsMargins(8, 8, 8, 8)
 
         ctrl_w = QWidget()
-        ctrl_w.setFixedWidth(260)
+        ctrl_w.setFixedWidth(240)
         ctrl = QVBoxLayout(ctrl_w)
         ctrl.setContentsMargins(4, 4, 4, 4)
 
@@ -97,11 +106,7 @@ class PhasePortraitWidget(QWidget):
 
         # Compute button
         btn = QPushButton("Compute")
-        btn.setStyleSheet(
-            "QPushButton { font-weight: bold; padding: 8px; "
-            "background-color: #1f77b4; color: white; border-radius: 4px; }"
-            "QPushButton:hover { background-color: #1a6aa5; }"
-        )
+        btn.setStyleSheet(BTN_STYLE_COMPUTE)
         btn.clicked.connect(self._compute)
         ctrl.addWidget(btn)
 
@@ -110,11 +115,7 @@ class PhasePortraitWidget(QWidget):
         ctrl.addWidget(btn_clear)
 
         btn_reset_view = QPushButton("Reset View")
-        btn_reset_view.setStyleSheet(
-            "QPushButton { font-weight: bold; padding: 6px; "
-            "background-color: #ff7f0e; color: white; border-radius: 4px; }"
-            "QPushButton:hover { background-color: #e06600; }"
-        )
+        btn_reset_view.setStyleSheet(BTN_STYLE_RESET)
         btn_reset_view.clicked.connect(self._reset_view)
         ctrl.addWidget(btn_reset_view)
 

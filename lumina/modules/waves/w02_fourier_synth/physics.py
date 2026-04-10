@@ -55,7 +55,13 @@ def target_waveform(x: NDArray[np.float64], kind: str) -> NDArray[np.float64]:
     if kind == "square":
         return np.sign(xw)
     elif kind == "triangle":
-        return 2.0 * np.abs(xw) / np.pi - 1.0
+        # Odd triangle wave matching the sine series: rises from -1 at -pi/2
+        # through 0 at 0 to +1 at pi/2, then falls back.
+        return np.where(
+            np.abs(xw) <= np.pi / 2,
+            2.0 * xw / np.pi,                          # linear rise in [-pi/2, pi/2]
+            np.sign(xw) * (2.0 - 2.0 * np.abs(xw) / np.pi),  # linear fall outside
+        )
     elif kind == "sawtooth":
         return xw / np.pi
     else:

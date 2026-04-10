@@ -26,6 +26,40 @@ class LorenzAttractor(SimulationBase):
     EFFORT = Effort.LOW
     DESCRIPTION = "3D strange attractor with sensitive dependence on initial conditions."
     TAGS = ["lorenz", "chaos", "attractor", "ODE", "dynamical systems"]
+    HELP_TEXT = """# Lorenz Attractor
+
+The Lorenz system — the original example of deterministic chaos.
+
+## What it shows
+Edward Lorenz discovered this system in 1963 while modelling atmospheric convection. Despite being fully deterministic, nearby trajectories diverge exponentially — the famous "butterfly effect".
+
+## The equations
+- dx/dt = sigma * (y - x)
+- dy/dt = x * (rho - z) - y
+- dz/dt = x * y - beta * z
+
+## Controls
+- sigma (Prandtl number): controls the rate of rotation, default 10
+- rho (Rayleigh number): controls the driving force, default 28
+- beta (geometry factor): related to the aspect ratio, default 8/3
+- x0, y0, z0: initial conditions
+- speed: animation playback speed (frames per tick)
+- trail: number of points in the animated trail
+- Play/Pause: start or stop the trajectory animation
+- Restart: reset animation to the beginning
+- Recompute: recalculate the trajectory with current parameters
+- Reset View: auto-range all four plots
+
+## Plots
+- X-Z and X-Y Phase Space: the butterfly-shaped strange attractor
+- Time Series: x(t) showing the characteristic irregular switching
+- Sensitivity to ICs: log-scale separation between two nearby trajectories
+
+## Try this
+- Set rho < 1 to see the trajectory decay to the origin
+- Set rho = 28 (default) for the classic chaotic regime
+- Change x0 by 0.001 and compare — the trajectories diverge rapidly
+"""
 
     def __init__(self) -> None:
         self._widget: LorenzWidget | None = None

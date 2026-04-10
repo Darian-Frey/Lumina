@@ -23,7 +23,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from lumina.core.config import DEFAULT_TIMER_MS, THEME_LIGHT
+from lumina.core.config import BTN_STYLE_COMPUTE, BTN_STYLE_RESET, DEFAULT_TIMER_MS
 from lumina.core.plot import SimPlotWidget
 from lumina.modules.mechanics.m10_double_pendulum.physics import (
     DEFAULT_G,
@@ -81,7 +81,25 @@ class DoublePendulumWidget(QWidget):
         self._trail_length: int = 600
 
         self._build_ui()
+        self._setup_tooltips()
         self._compute()
+
+    def _setup_tooltips(self) -> None:
+        self._spin_m1.setToolTip("Mass of the first (upper) bob in kg")
+        self._spin_m2.setToolTip("Mass of the second (lower) bob in kg")
+        self._spin_L1.setToolTip("Length of the first (upper) rod in metres")
+        self._spin_L2.setToolTip("Length of the second (lower) rod in metres")
+        self._spin_g.setToolTip("Gravitational acceleration (9.81 m/s² on Earth)")
+        self._spin_th1.setToolTip("Initial angle of first pendulum (0 = hanging down)")
+        self._spin_th2.setToolTip("Initial angle of second pendulum (0 = hanging down)")
+        self._spin_w1.setToolTip("Initial angular velocity of first pendulum")
+        self._spin_w2.setToolTip("Initial angular velocity of second pendulum")
+        self._spin_speed.setToolTip("Animation frames per tick")
+        self._spin_trail.setToolTip("Number of points in the trajectory trail")
+        self._btn_play.setToolTip("Start or pause the animation")
+        self._btn_restart.setToolTip("Reset to initial conditions and recompute")
+        self._btn_compute.setToolTip("Recompute trajectory with current parameters")
+        self._btn_reset_view.setToolTip("Auto-range all plots to fit the data")
 
     def _build_ui(self) -> None:
         main_layout = QHBoxLayout(self)
@@ -141,8 +159,14 @@ class DoublePendulumWidget(QWidget):
         ctrl.addWidget(anim)
 
         self._btn_compute = QPushButton("Recompute")
+        self._btn_compute.setStyleSheet(BTN_STYLE_COMPUTE)
         self._btn_compute.clicked.connect(self._compute)
         ctrl.addWidget(self._btn_compute)
+
+        self._btn_reset_view = QPushButton("Reset View")
+        self._btn_reset_view.setStyleSheet(BTN_STYLE_RESET)
+        self._btn_reset_view.clicked.connect(self._reset_view)
+        ctrl.addWidget(self._btn_reset_view)
 
         ctrl.addStretch()
         main_layout.addWidget(controls)
@@ -222,6 +246,17 @@ class DoublePendulumWidget(QWidget):
         self._line_traj.setData(self._x2, self._y2)
         self._line_energy.setData(self._t, self._energy)
 
+        # Zoom limits based on rod lengths
+        L = self._spin_L1.value() + self._spin_L2.value()
+        self._plot_pend.plot_item.setLimits(
+            xMin=-L - 1, xMax=L + 1, yMin=-L - 1, yMax=1.5,
+        )
+        self._plot_traj.plot_item.setLimits(
+            xMin=-L - 1, xMax=L + 1, yMin=-L - 1, yMax=1.5,
+        )
+        t_max = float(self._t[-1]) if len(self._t) > 0 else 30
+        self._plot_energy.plot_item.setLimits(xMin=-1, xMax=t_max + 1)
+
     def _toggle_play(self) -> None:
         if self._btn_play.isChecked():
             self._btn_play.setText("Pause")
@@ -297,6 +332,15 @@ class DoublePendulumWidget(QWidget):
             "theta2": self._th2, "omega2": self._w2,
             "x2": self._x2, "y2": self._y2, "energy": self._energy,
         }
+
+    def _reset_view(self) -> None:
+        """Reset all plot views to auto-range."""
+        for plot in (self._plot_pend, self._plot_traj, self._plot_energy):
+            plot.plot_item.autoRange()
+        # Re-lock pendulum view
+        L = self._spin_L1.value() + self._spin_L2.value()
+        self._plot_pend.plot_item.setXRange(-L - 0.5, L + 0.5)
+        self._plot_pend.plot_item.setYRange(-L - 0.5, 1)
 
     def stop(self) -> None:
         self._timer.stop()

@@ -44,6 +44,8 @@ from PyQt6.QtWidgets import (
 from lumina.core.config import (
     APP_NAME,
     APP_VERSION,
+    CATEGORY_COLOURS,
+    CATEGORY_ICONS,
     LEVEL_COLOURS,
     LEVEL_LABELS,
     PRESET_EXTENSION,
@@ -52,6 +54,7 @@ from lumina.core.config import (
     THEME_LIGHT,
 )
 from lumina.core.engine import SimulationBase
+from lumina.core.help_dialog import HelpDialog
 from lumina.launcher.module_loader import discover_modules
 from lumina.launcher.theme import (
     apply_theme,
@@ -78,20 +81,9 @@ _CATEGORY_NAMES: dict[str, str] = {
 
 
 class SimulationCard(QFrame):
-    """A clickable card representing a single simulation in the dashboard grid."""
+    """A clickable card with category colour banner and icon."""
 
     clicked = pyqtSignal()
-
-    _NORMAL_STYLE = (
-        "QFrame#simCard { background-color: #ffffff;"
-        " border: 2px solid #bbbbbb; border-radius: 8px; }"
-        "QFrame#simCard QLabel { background: transparent; border: none; }"
-    )
-    _HOVER_STYLE = (
-        "QFrame#simCard { background-color: #eaf3fc;"
-        " border: 2px solid #1f77b4; border-radius: 8px; }"
-        "QFrame#simCard QLabel { background: transparent; border: none; }"
-    )
 
     def __init__(
         self,
@@ -102,58 +94,98 @@ class SimulationCard(QFrame):
         self.sim_class = sim_class
         self.setObjectName("simCard")
 
-        self.setFixedSize(300, 140)
+        cat_colour = CATEGORY_COLOURS.get(sim_class.CATEGORY, "#607D8B")
+        cat_icon = CATEGORY_ICONS.get(sim_class.CATEGORY, "\u2022")
+        level_colour = LEVEL_COLOURS.get(sim_class.LEVEL, "#999999")
+        level_text = LEVEL_LABELS.get(sim_class.LEVEL, sim_class.LEVEL)
+
+        self.setFixedSize(310, 150)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setFrameShape(QFrame.Shape.StyledPanel)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(14, 12, 14, 10)
-        layout.setSpacing(6)
+        self._cat_colour = cat_colour
+        self._normal_ss = (
+            f"QFrame#simCard {{ background-color: #ffffff;"
+            f" border: 2px solid #cccccc; border-radius: 8px;"
+            f" border-left: 5px solid {cat_colour}; }}"
+            f"QFrame#simCard QLabel {{ background: transparent; border: none; }}"
+        )
+        self._hover_ss = (
+            f"QFrame#simCard {{ background-color: #f5f9ff;"
+            f" border: 2px solid {cat_colour}; border-radius: 8px;"
+            f" border-left: 5px solid {cat_colour}; }}"
+            f"QFrame#simCard QLabel {{ background: transparent; border: none; }}"
+        )
 
-        # Header: ID badge + name
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 10, 12, 8)
+        layout.setSpacing(4)
+
+        # Row 1: category icon + ID badge + name
         header = QHBoxLayout()
-        header.setSpacing(8)
+        header.setSpacing(6)
+
+        icon_label = QLabel(cat_icon)
+        icon_label.setFont(QFont("sans-serif", 16))
+        icon_label.setFixedWidth(24)
+        icon_label.setStyleSheet(f"color: {cat_colour};")
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header.addWidget(icon_label)
 
         id_label = QLabel(sim_class.ID)
-        id_label.setFont(QFont("monospace", 9, QFont.Weight.Bold))
-        id_label.setFixedWidth(50)
+        id_label.setFont(QFont("monospace", 8, QFont.Weight.Bold))
+        id_label.setFixedWidth(42)
+        id_label.setFixedHeight(20)
         id_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         id_label.setStyleSheet(
-            "background-color: #1f77b4 !important; color: #ffffff;"
-            " padding: 2px 6px; border-radius: 3px;"
+            f"background-color: {cat_colour} !important; color: #ffffff;"
+            f" padding: 1px 4px; border-radius: 3px;"
         )
         header.addWidget(id_label)
 
         name_label = QLabel(sim_class.NAME)
-        name_label.setFont(QFont("sans-serif", 12, QFont.Weight.Bold))
+        name_label.setFont(QFont("sans-serif", 11, QFont.Weight.Bold))
         name_label.setStyleSheet("color: #1a1a1a;")
         name_label.setWordWrap(True)
         header.addWidget(name_label, 1)
         layout.addLayout(header)
 
-        # Description
+        # Row 2: description
         desc = QLabel(sim_class.DESCRIPTION)
         desc.setWordWrap(True)
         desc.setFont(QFont("sans-serif", 9))
         desc.setStyleSheet("color: #555555;")
         layout.addWidget(desc, 1)
 
-        # Level badge
-        level_colour = LEVEL_COLOURS.get(sim_class.LEVEL, "#999999")
-        level_text = LEVEL_LABELS.get(sim_class.LEVEL, sim_class.LEVEL)
+        # Row 3: level badge + category name
+        footer = QHBoxLayout()
+        footer.setSpacing(8)
+
         level_label = QLabel(level_text)
         level_label.setFont(QFont("sans-serif", 8, QFont.Weight.Bold))
-        level_label.setStyleSheet(f"color: {level_colour};")
-        layout.addWidget(level_label)
+        level_label.setStyleSheet(
+            f"color: #ffffff; background-color: {level_colour} !important;"
+            f" padding: 1px 6px; border-radius: 2px;"
+        )
+        footer.addWidget(level_label)
 
-        self.setStyleSheet(self._NORMAL_STYLE)
+        cat_name = _CATEGORY_NAMES.get(sim_class.CATEGORY, sim_class.CATEGORY)
+        cat_label = QLabel(cat_name)
+        cat_label.setFont(QFont("sans-serif", 8))
+        cat_label.setStyleSheet(f"color: {cat_colour};")
+        footer.addWidget(cat_label)
+        footer.addStretch()
+
+        layout.addLayout(footer)
+
+        self.setStyleSheet(self._normal_ss)
 
     def enterEvent(self, event: Any) -> None:
-        self.setStyleSheet(self._HOVER_STYLE)
+        self.setStyleSheet(self._hover_ss)
         super().enterEvent(event)
 
     def leaveEvent(self, event: Any) -> None:
-        self.setStyleSheet(self._NORMAL_STYLE)
+        self.setStyleSheet(self._normal_ss)
         super().leaveEvent(event)
 
     def mousePressEvent(self, event: Any) -> None:
@@ -230,25 +262,51 @@ class MainWindow(QMainWindow):
         self._act_sep = toolbar.addSeparator()
         self._act_sep.setVisible(False)
 
-        self._btn_reset = QPushButton("Reset")
+        _tb_style = (
+            "QPushButton { padding: 5px 12px; border-radius: 3px;"
+            " background-color: #e8e8e8; border: 1px solid #bbbbbb; }"
+            "QPushButton:hover { background-color: #d0d0d0; }"
+        )
+
+        self._btn_reset = QPushButton("\u21ba  Reset")
+        self._btn_reset.setStyleSheet(_tb_style)
+        self._btn_reset.setToolTip("Reset simulation to default parameters")
         self._btn_reset.clicked.connect(self._reset_sim)
         self._act_reset = toolbar.addWidget(self._btn_reset)
         self._act_reset.setVisible(False)
 
-        self._btn_export = QPushButton("Export")
+        self._btn_export = QPushButton("\u2913  Export")
+        self._btn_export.setStyleSheet(_tb_style)
+        self._btn_export.setToolTip("Export plots as PNG and data as CSV")
         self._btn_export.clicked.connect(self._export_sim)
         self._act_export = toolbar.addWidget(self._btn_export)
         self._act_export.setVisible(False)
 
-        self._btn_save = QPushButton("Save State")
+        self._btn_save = QPushButton("\u2b07  Save")
+        self._btn_save.setStyleSheet(_tb_style)
+        self._btn_save.setToolTip("Save simulation state to a .lumina file")
         self._btn_save.clicked.connect(self._save_state)
         self._act_save = toolbar.addWidget(self._btn_save)
         self._act_save.setVisible(False)
 
-        self._btn_load = QPushButton("Load State")
+        self._btn_load = QPushButton("\u2b06  Load")
+        self._btn_load.setStyleSheet(_tb_style)
+        self._btn_load.setToolTip("Load simulation state from a .lumina file")
         self._btn_load.clicked.connect(self._load_state)
         self._act_load = toolbar.addWidget(self._btn_load)
         self._act_load.setVisible(False)
+
+        self._btn_help = QPushButton("\u2753")
+        self._btn_help.setFixedWidth(34)
+        self._btn_help.setStyleSheet(
+            "QPushButton { font-size: 14px; padding: 4px; "
+            "background-color: #17becf; color: white; border-radius: 4px; }"
+            "QPushButton:hover { background-color: #139bab; }"
+        )
+        self._btn_help.setToolTip("Show help for this simulation")
+        self._btn_help.clicked.connect(self._show_help)
+        self._act_help = toolbar.addWidget(self._btn_help)
+        self._act_help.setVisible(False)
 
         # --- Right-aligned: theme controls (always visible) ---
         spacer = QWidget()
@@ -528,6 +586,7 @@ class MainWindow(QMainWindow):
         self._act_export.setVisible(visible)
         self._act_save.setVisible(visible)
         self._act_load.setVisible(visible)
+        self._act_help.setVisible(visible)
 
     def _reset_sim(self) -> None:
         """Reset the active simulation."""
@@ -576,6 +635,21 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
     # Theme controls
     # ------------------------------------------------------------------
+
+    def _show_help(self) -> None:
+        """Show the help dialog for the active simulation."""
+        if self._active_sim is None:
+            return
+        title = f"{self._active_sim.ID} — {self._active_sim.NAME}"
+        help_text = self._active_sim.HELP_TEXT
+        if not help_text:
+            help_text = (
+                f"# {self._active_sim.NAME}\n\n"
+                f"{self._active_sim.DESCRIPTION}\n\n"
+                "No detailed help is available for this module yet."
+            )
+        dialog = HelpDialog(title, help_text, self)
+        dialog.exec()
 
     def _on_theme_changed(self) -> None:
         """Handle theme selector change."""
