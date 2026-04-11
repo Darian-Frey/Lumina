@@ -28,14 +28,22 @@ _KNOWN_MODULES: list[str] = [
     "lumina.modules.applied_maths.ap01_phase_portrait.sim",
     "lumina.modules.applied_maths.ap02_bifurcation.sim",
     "lumina.modules.applied_maths.ap03_lorenz.sim",
+    "lumina.modules.applied_maths.ap04_fourier_series.sim",
+    "lumina.modules.applied_maths.ap05_linear_algebra.sim",
+    "lumina.modules.astrophysics.a02_orbital_mechanics.sim",
+    "lumina.modules.electromagnetism.e01_electric_field.sim",
+    "lumina.modules.electromagnetism.e03_rlc_circuits.sim",
+    "lumina.modules.mechanics.m01_projectile.sim",
     "lumina.modules.mechanics.m04_shm.sim",
     "lumina.modules.mechanics.m10_double_pendulum.sim",
     "lumina.modules.pure_maths.p03_fractallab.sim",
     "lumina.modules.quantum.q01_particle_in_box.sim",
+    "lumina.modules.quantum.q02_tunnelling.sim",
     "lumina.modules.thermodynamics.t01_ideal_gas.sim",
     "lumina.modules.thermodynamics.t02_maxwell_boltzmann.sim",
     "lumina.modules.waves.w01_superposition.sim",
     "lumina.modules.waves.w02_fourier_synth.sim",
+    "lumina.modules.waves.w04_diffraction.sim",
 ]
 
 

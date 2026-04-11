@@ -45,7 +45,7 @@ class WaveControl(QGroupBox):
         def row(lbl: str, lo: float, hi: float, val: float) -> QDoubleSpinBox:
             r = QHBoxLayout()
             l = QLabel(lbl)
-            l.setFixedWidth(50)
+            l.setFixedWidth(70)
             l.setFont(QFont("sans-serif", 9))
             r.addWidget(l)
             s = QDoubleSpinBox()
@@ -58,9 +58,9 @@ class WaveControl(QGroupBox):
             lay.addLayout(r)
             return s
 
-        self.spin_A = row("A", 0.0, 5.0, 1.0 if idx == 0 else 0.0)
-        self.spin_freq = row("f (Hz)", 0.1, 20.0, 1.0 + idx * 0.1)
-        self.spin_phase = row("\u03c6", -3.14, 3.14, 0.0)
+        self.spin_A = row("Amp A:", 0.0, 5.0, 1.0 if idx == 0 else 0.0)
+        self.spin_freq = row("Freq (Hz):", 0.1, 20.0, 1.0 + idx * 0.1)
+        self.spin_phase = row("Phase \u03c6:", -3.14, 3.14, 0.0)
 
 
 class WaveSuperpositionWidget(QWidget):

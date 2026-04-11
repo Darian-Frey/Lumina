@@ -21,6 +21,7 @@ from lumina.modules.quantum.q01_particle_in_box.physics import (
     energy_level, normalise_coefficients, probability_density,
     time_evolved_state, wavefunction,
 )
+# Note: wavefunction/probability_density are kept for get_data() export
 
 DEFAULT_L: float = 1.0
 DEFAULT_N_MAX: int = 5
@@ -59,7 +60,9 @@ class ParticleInBoxWidget(QWidget):
         box_grp = QGroupBox("Box")
         bl = QVBoxLayout(box_grp)
         r = QHBoxLayout()
-        r.addWidget(QLabel("L:"))
+        lbl = QLabel("Width L:")
+        lbl.setFixedWidth(90)
+        r.addWidget(lbl)
         self._spin_L = QDoubleSpinBox()
         self._spin_L.setRange(0.1, 10.0)
         self._spin_L.setValue(DEFAULT_L)
@@ -70,10 +73,12 @@ class ParticleInBoxWidget(QWidget):
         ctrl.addWidget(box_grp)
 
         # State selection
-        state_grp = QGroupBox("State")
+        state_grp = QGroupBox("Eigenstate")
         sl = QVBoxLayout(state_grp)
         r = QHBoxLayout()
-        r.addWidget(QLabel("n:"))
+        lbl = QLabel("Quantum n:")
+        lbl.setFixedWidth(90)
+        r.addWidget(lbl)
         self._spin_n = QSpinBox()
         self._spin_n.setRange(1, 20)
         self._spin_n.setValue(1)
@@ -82,7 +87,9 @@ class ParticleInBoxWidget(QWidget):
         sl.addLayout(r)
 
         r = QHBoxLayout()
-        r.addWidget(QLabel("levels shown:"))
+        lbl = QLabel("Levels:")
+        lbl.setFixedWidth(90)
+        r.addWidget(lbl)
         self._spin_n_max = QSpinBox()
         self._spin_n_max.setRange(1, 15)
         self._spin_n_max.setValue(DEFAULT_N_MAX)
@@ -92,14 +99,16 @@ class ParticleInBoxWidget(QWidget):
         ctrl.addWidget(state_grp)
 
         # Superposition mode
-        super_grp = QGroupBox("Superposition")
+        super_grp = QGroupBox("Time Evolution")
         spl = QVBoxLayout(super_grp)
-        self._chk_super = QCheckBox("Show |1> + |2> + |3>")
+        self._chk_super = QCheckBox("Superposition (|1>+|2>+|3>)")
         self._chk_super.stateChanged.connect(self._compute)
         spl.addWidget(self._chk_super)
 
         r = QHBoxLayout()
-        r.addWidget(QLabel("speed:"))
+        lbl = QLabel("Speed:")
+        lbl.setFixedWidth(90)
+        r.addWidget(lbl)
         self._spin_speed = QDoubleSpinBox()
         self._spin_speed.setRange(0.01, 10.0)
         self._spin_speed.setValue(1.0)
@@ -138,17 +147,27 @@ class ParticleInBoxWidget(QWidget):
 
         # Top: energy levels
         self._plot_energy = SimPlotWidget(
-            title="Energy Levels", x_label="n", y_label="E_n",
+            title="Energy Levels", x_label="quantum number n", y_label="energy E\u2099",
         )
-        self._scatter_energy = self._plot_energy.add_scatter(size=10)
+        self._scatter_energy = self._plot_energy.add_scatter(size=12)
+        self._plot_energy.plot_item.getAxis("left").enableAutoSIPrefix(False)
+        self._plot_energy.plot_item.getAxis("bottom").enableAutoSIPrefix(False)
         plot_split.addWidget(self._plot_energy)
 
         # Middle: wavefunction
         self._plot_wf = SimPlotWidget(
-            title="Wavefunction", x_label="x", y_label="\u03c8(x)",
+            title="Wavefunction \u03c8(x, t)",
+            x_label="position x", y_label="\u03c8",
         )
-        self._line_wf_real = self._plot_wf.add_line(name="Re[\u03c8]", width=2)
-        self._line_wf_imag = self._plot_wf.add_line(name="Im[\u03c8]", width=2)
+        self._plot_wf.plot_item.addLegend(offset=(10, 10))
+        self._line_wf_real = self._plot_wf.plot_item.plot(
+            [], [], pen=pg.mkPen("#1f77b4", width=2), name="Re[\u03c8]",
+        )
+        self._line_wf_imag = self._plot_wf.plot_item.plot(
+            [], [], pen=pg.mkPen("#ff7f0e", width=2), name="Im[\u03c8]",
+        )
+        self._plot_wf.plot_item.getAxis("left").enableAutoSIPrefix(False)
+        self._plot_wf.plot_item.getAxis("bottom").enableAutoSIPrefix(False)
         self._plot_wf.plot_item.addLine(
             x=0, pen=pg.mkPen("#666666", style=Qt.PenStyle.DashLine),
         )
@@ -159,10 +178,12 @@ class ParticleInBoxWidget(QWidget):
 
         # Bottom: probability density
         self._plot_prob = SimPlotWidget(
-            title="Probability Density |\u03c8|\u00b2",
-            x_label="x", y_label="|\u03c8|\u00b2",
+            title="Probability Density |\u03c8(x, t)|\u00b2",
+            x_label="position x", y_label="|\u03c8|\u00b2",
         )
         self._line_prob = self._plot_prob.add_line(width=2)
+        self._plot_prob.plot_item.getAxis("left").enableAutoSIPrefix(False)
+        self._plot_prob.plot_item.getAxis("bottom").enableAutoSIPrefix(False)
         self._plot_prob.plot_item.addLine(
             x=0, pen=pg.mkPen("#666666", style=Qt.PenStyle.DashLine),
         )
@@ -197,23 +218,22 @@ class ParticleInBoxWidget(QWidget):
         self._plot_energy.plot_item.setXRange(0.5, n_max + 0.5)
         self._plot_energy.plot_item.setYRange(0, e_max * 1.1)
 
-        # Wavefunction (or superposition)
+        # Wavefunction (or superposition) — always time-evolve so Play is meaningful
         if self._chk_super.isChecked():
             coeffs = normalise_coefficients([(1, 1+0j), (2, 1+0j), (3, 1+0j)])
             psi = time_evolved_state(self._x, coeffs, self._t, L)
-            self._line_wf_real.setData(self._x, psi.real)
-            self._line_wf_imag.setData(self._x, psi.imag)
-            prob = (np.abs(psi) ** 2).astype(np.float64)
-            max_psi = max(
-                float(np.abs(psi.real).max()),
-                float(np.abs(psi.imag).max()),
-            )
         else:
-            psi_real = wavefunction(self._x, n, L)
-            self._line_wf_real.setData(self._x, psi_real)
-            self._line_wf_imag.setData([], [])
-            prob = probability_density(self._x, n, L)
-            max_psi = float(np.abs(psi_real).max())
+            # Single eigenstate with time-dependent phase exp(-i E_n t)
+            psi = time_evolved_state(self._x, [(n, 1.0 + 0j)], self._t, L)
+
+        self._line_wf_real.setData(self._x, psi.real)
+        self._line_wf_imag.setData(self._x, psi.imag)
+        prob = (np.abs(psi) ** 2).astype(np.float64)
+        max_psi = max(
+            float(np.abs(psi.real).max()),
+            float(np.abs(psi.imag).max()),
+            1e-10,
+        )
 
         self._line_prob.setData(self._x, prob)
 
@@ -254,11 +274,14 @@ class ParticleInBoxWidget(QWidget):
             )
         else:
             E_n = energy_level(n, L)
+            T_n = 2 * np.pi / E_n if E_n > 0 else 0.0
             self._readout.setText(
                 f"L = {L:.2f}\n"
                 f"n = {n}\n"
                 f"E\u2099 = {E_n:.3f}\n"
-                f"nodes = {n - 1}"
+                f"period = {T_n:.3f}\n"
+                f"nodes = {n - 1}\n"
+                f"t = {self._t:.2f}"
             )
 
     def _toggle_play(self) -> None:

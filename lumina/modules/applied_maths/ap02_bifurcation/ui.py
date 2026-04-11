@@ -41,10 +41,10 @@ from lumina.modules.applied_maths.ap02_bifurcation.physics import (
 def _spin_row(label: str, spin: QDoubleSpinBox | QSpinBox) -> QHBoxLayout:
     row = QHBoxLayout()
     lbl = QLabel(label)
-    lbl.setFixedWidth(80)
-    lbl.setFont(QFont("sans-serif", 10))
+    lbl.setFixedWidth(110)
+    lbl.setFont(QFont("sans-serif", 9))
     row.addWidget(lbl)
-    spin.setFixedWidth(90)
+    spin.setFixedWidth(80)
     row.addWidget(spin)
     return row
 
@@ -86,19 +86,19 @@ class BifurcationWidget(QWidget):
         self._spin_nr.setRange(100, 5000)
         self._spin_nr.setValue(DEFAULT_N_R)
         self._spin_nr.setSingleStep(100)
-        resl.addLayout(_spin_row("r samples", self._spin_nr))
+        resl.addLayout(_spin_row("r samples:", self._spin_nr))
 
         self._spin_niter = QSpinBox()
         self._spin_niter.setRange(100, 5000)
         self._spin_niter.setValue(DEFAULT_N_ITER)
         self._spin_niter.setSingleStep(100)
-        resl.addLayout(_spin_row("iterations", self._spin_niter))
+        resl.addLayout(_spin_row("Iterations:", self._spin_niter))
 
         self._spin_ndiscard = QSpinBox()
         self._spin_ndiscard.setRange(50, 4000)
         self._spin_ndiscard.setValue(DEFAULT_N_DISCARD)
         self._spin_ndiscard.setSingleStep(50)
-        resl.addLayout(_spin_row("transient", self._spin_ndiscard))
+        resl.addLayout(_spin_row("Transient:", self._spin_ndiscard))
 
         ctrl.addWidget(res)
 
@@ -110,7 +110,7 @@ class BifurcationWidget(QWidget):
         self._spin_x0.setValue(DEFAULT_X0)
         self._spin_x0.setDecimals(3)
         self._spin_x0.setSingleStep(0.05)
-        icl.addLayout(_spin_row("x0", self._spin_x0))
+        icl.addLayout(_spin_row("Initial x\u2080:", self._spin_x0))
         ctrl.addWidget(ic)
 
         # Buttons — styled to match AP01

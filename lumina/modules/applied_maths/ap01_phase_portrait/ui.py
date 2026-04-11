@@ -215,12 +215,16 @@ class PhasePortraitWidget(QWidget):
         self._param_spins.clear()
         for pname, pval in params.items():
             row = QHBoxLayout()
-            row.addWidget(QLabel(pname))
+            plbl = QLabel(f"{pname}:")
+            plbl.setFixedWidth(110)
+            plbl.setFont(QFont("sans-serif", 9))
+            row.addWidget(plbl)
             spin = QDoubleSpinBox()
             spin.setRange(-100, 100)
             spin.setValue(pval)
             spin.setDecimals(2)
             spin.setSingleStep(0.1)
+            spin.setFixedWidth(80)
             row.addWidget(spin)
             self._param_layout.addLayout(row)
             self._param_spins[pname] = spin

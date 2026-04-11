@@ -23,14 +23,15 @@ from lumina.modules.mechanics.m04_shm.physics import (
 def _row(label: str, lo: float, hi: float, val: float, dec: int = 2) -> tuple[QHBoxLayout, QDoubleSpinBox]:
     r = QHBoxLayout()
     l = QLabel(label)
-    l.setFixedWidth(55)
+    l.setFixedWidth(110)
+    l.setFont(QFont("sans-serif", 9))
     r.addWidget(l)
     s = QDoubleSpinBox()
     s.setRange(lo, hi)
     s.setValue(val)
     s.setDecimals(dec)
     s.setSingleStep(10 ** (-dec))
-    s.setFixedWidth(75)
+    s.setFixedWidth(80)
     r.addWidget(s)
     return r, s
 
@@ -62,15 +63,15 @@ class SHMWidget(QWidget):
 
         pg = QGroupBox("Parameters")
         pl = QVBoxLayout(pg)
-        r, self._spin_k = _row("k (N/m)", 0.1, 50.0, 5.0)
+        r, self._spin_k = _row("Spring k (N/m):", 0.1, 50.0, 5.0)
         pl.addLayout(r)
-        r, self._spin_m = _row("m (kg)", 0.1, 20.0, 1.0)
+        r, self._spin_m = _row("Mass m (kg):", 0.1, 20.0, 1.0)
         pl.addLayout(r)
-        r, self._spin_A = _row("A (m)", 0.01, 5.0, 1.0)
+        r, self._spin_A = _row("Amplitude A (m):", 0.01, 5.0, 1.0)
         pl.addLayout(r)
-        r, self._spin_phi = _row("\u03c6 (rad)", -3.14, 3.14, 0.0)
+        r, self._spin_phi = _row("Phase \u03c6 (rad):", -3.14, 3.14, 0.0)
         pl.addLayout(r)
-        r, self._spin_gamma = _row("\u03b3 (1/s)", 0.0, 10.0, 0.0)
+        r, self._spin_gamma = _row("Damping \u03b3 (1/s):", 0.0, 10.0, 0.0)
         pl.addLayout(r)
         ctrl.addWidget(pg)
 
@@ -100,19 +101,30 @@ class SHMWidget(QWidget):
         sp = QSplitter(Qt.Orientation.Vertical)
 
         self._plot_xt = SimPlotWidget(title="Displacement x(t)", x_label="t (s)", y_label="x (m)")
+        self._plot_xt.plot_item.addLegend(offset=(10, 10))
+        self._plot_xt.plot_item.getAxis("left").enableAutoSIPrefix(False)
+        self._plot_xt.plot_item.getAxis("bottom").enableAutoSIPrefix(False)
         self._line_xt = self._plot_xt.add_line(name="x(t)")
-        self._line_env = self._plot_xt.plot_item.plot([], [], pen={"color": "#999", "style": Qt.PenStyle.DashLine})
+        self._line_env = self._plot_xt.plot_item.plot(
+            [], [], pen={"color": "#999", "style": Qt.PenStyle.DashLine},
+            name="envelope",
+        )
         sp.addWidget(self._plot_xt)
 
         bottom = QSplitter(Qt.Orientation.Horizontal)
-        self._plot_phase = SimPlotWidget(title="Phase Space", x_label="x", y_label="v")
+        self._plot_phase = SimPlotWidget(title="Phase Space", x_label="x (m)", y_label="v (m/s)")
+        self._plot_phase.plot_item.getAxis("left").enableAutoSIPrefix(False)
+        self._plot_phase.plot_item.getAxis("bottom").enableAutoSIPrefix(False)
         self._line_phase = self._plot_phase.add_line(name="(x,v)")
         self._dot_phase = self._plot_phase.add_scatter(size=10)
         bottom.addWidget(self._plot_phase)
 
         self._plot_energy = SimPlotWidget(title="Energy", x_label="t (s)", y_label="E (J)")
-        self._line_ke = self._plot_energy.add_line(name="KE")
-        self._line_pe = self._plot_energy.add_line(name="PE")
+        self._plot_energy.plot_item.addLegend(offset=(10, 10))
+        self._plot_energy.plot_item.getAxis("left").enableAutoSIPrefix(False)
+        self._plot_energy.plot_item.getAxis("bottom").enableAutoSIPrefix(False)
+        self._line_ke = self._plot_energy.add_line(name="Kinetic")
+        self._line_pe = self._plot_energy.add_line(name="Potential")
         self._line_total = self._plot_energy.add_line(name="Total")
         bottom.addWidget(self._plot_energy)
 

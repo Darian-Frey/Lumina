@@ -64,8 +64,8 @@ def _make_param_slider(
     """
     row = QHBoxLayout()
     lbl = QLabel(label)
-    lbl.setFixedWidth(50)
-    lbl.setFont(QFont("sans-serif", 10))
+    lbl.setFixedWidth(110)
+    lbl.setFont(QFont("sans-serif", 9))
     row.addWidget(lbl)
 
     spin = QDoubleSpinBox(parent)
@@ -136,13 +136,13 @@ class LorenzWidget(QWidget):
         param_group = QGroupBox("Parameters")
         param_layout = QVBoxLayout(param_group)
 
-        row, self._spin_sigma = _make_param_slider("sigma", 0.1, 50.0, DEFAULT_SIGMA)
+        row, self._spin_sigma = _make_param_slider("Prandtl \u03c3:", 0.1, 50.0, DEFAULT_SIGMA)
         param_layout.addLayout(row)
 
-        row, self._spin_rho = _make_param_slider("rho", 0.1, 100.0, DEFAULT_RHO)
+        row, self._spin_rho = _make_param_slider("Rayleigh \u03c1:", 0.1, 100.0, DEFAULT_RHO)
         param_layout.addLayout(row)
 
-        row, self._spin_beta = _make_param_slider("beta", 0.1, 20.0, DEFAULT_BETA, 2)
+        row, self._spin_beta = _make_param_slider("Geometry \u03b2:", 0.1, 20.0, DEFAULT_BETA, 2)
         param_layout.addLayout(row)
 
         ctrl_layout.addWidget(param_group)
@@ -151,13 +151,13 @@ class LorenzWidget(QWidget):
         ic_group = QGroupBox("Initial Conditions")
         ic_layout = QVBoxLayout(ic_group)
 
-        row, self._spin_x0 = _make_param_slider("x0", -30.0, 30.0, DEFAULT_IC[0])
+        row, self._spin_x0 = _make_param_slider("Initial x\u2080:", -30.0, 30.0, DEFAULT_IC[0])
         ic_layout.addLayout(row)
 
-        row, self._spin_y0 = _make_param_slider("y0", -30.0, 30.0, DEFAULT_IC[1])
+        row, self._spin_y0 = _make_param_slider("Initial y\u2080:", -30.0, 30.0, DEFAULT_IC[1])
         ic_layout.addLayout(row)
 
-        row, self._spin_z0 = _make_param_slider("z0", -10.0, 60.0, DEFAULT_IC[2])
+        row, self._spin_z0 = _make_param_slider("Initial z\u2080:", -10.0, 60.0, DEFAULT_IC[2])
         ic_layout.addLayout(row)
 
         ctrl_layout.addWidget(ic_group)
@@ -166,10 +166,10 @@ class LorenzWidget(QWidget):
         anim_group = QGroupBox("Animation")
         anim_layout = QVBoxLayout(anim_group)
 
-        row, self._spin_speed = _make_param_slider("speed", 1, 50, 10, 0)
+        row, self._spin_speed = _make_param_slider("Speed:", 1, 50, 10, 0)
         anim_layout.addLayout(row)
 
-        row, self._spin_trail = _make_param_slider("trail", 50, 2000, 500, 0)
+        row, self._spin_trail = _make_param_slider("Trail length:", 50, 2000, 500, 0)
         anim_layout.addLayout(row)
 
         btn_row = QHBoxLayout()

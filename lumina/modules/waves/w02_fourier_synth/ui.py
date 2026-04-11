@@ -63,10 +63,14 @@ class FourierSynthWidget(QWidget):
         nh = QGroupBox("Harmonics")
         nhl = QVBoxLayout(nh)
         row = QHBoxLayout()
-        row.addWidget(QLabel("N:"))
+        nl = QLabel("Harmonics N:")
+        nl.setFixedWidth(110)
+        nl.setFont(QFont("sans-serif", 9))
+        row.addWidget(nl)
         self._spin_n = QSpinBox()
         self._spin_n.setRange(1, 50)
         self._spin_n.setValue(5)
+        self._spin_n.setFixedWidth(80)
         self._spin_n.valueChanged.connect(self._update)
         row.addWidget(self._spin_n)
         nhl.addLayout(row)
@@ -112,6 +116,9 @@ class FourierSynthWidget(QWidget):
             title="Partial Sum vs Target", x_label="x", y_label="y"
         )
         self._plot_sum.clear()
+        self._plot_sum.plot_item.addLegend(offset=(10, 10))
+        self._plot_sum.plot_item.getAxis("left").enableAutoSIPrefix(False)
+        self._plot_sum.plot_item.getAxis("bottom").enableAutoSIPrefix(False)
         self._line_target = self._plot_sum.plot_item.plot(
             [], [], pen={"color": "#d62728", "width": 2, "style": Qt.PenStyle.DashLine},
             name="target",
