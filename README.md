@@ -57,13 +57,49 @@ Lumina lives in between. It is designed for the student who has outgrown classro
 
 ## Screenshots
 
-Add screenshots to `docs/images/` and reference them here. Suggested set:
+### Dashboard
 
-- `dashboard.png` — the module dashboard with category cards
-- `ap03_lorenz.png` — the Lorenz attractor in action
-- `p03_fractallab.png` — a deep zoom into the Mandelbrot set
-- `m10_pendulum.png` — the chaotic double pendulum mid-swing
-- `ap01_phase_portrait.png` — a Van der Pol phase portrait with streamlines
+![Dashboard](docs/images/dashboard.png)
+
+### ODE Phase Portrait (AP01)
+
+![ODE Phase Portrait](docs/images/ap01_phase_portrait.png)
+
+### Bifurcation Diagram (AP02)
+
+![Bifurcation Diagram](docs/images/ap02_bifurcation.png)
+
+### Lorenz Attractor (AP03)
+
+![Lorenz Attractor](docs/images/ap03_lorenz.png)
+
+### Simple Harmonic Motion (M04)
+
+![Simple Harmonic Motion](docs/images/m04_shm.png)
+
+### Chaotic Double Pendulum (M10)
+
+![Chaotic Double Pendulum](docs/images/m10_double_pendulum.png)
+
+### FractalLab — Mandelbrot Set (P03)
+
+![FractalLab](docs/images/p03_fractallab.png)
+
+### Ideal Gas Simulation (T01)
+
+![Ideal Gas](docs/images/t01_ideal_gas.png)
+
+### Maxwell-Boltzmann Distribution (T02)
+
+![Maxwell-Boltzmann](docs/images/t02_maxwell_boltzmann.png)
+
+### Wave Superposition (W01)
+
+![Wave Superposition](docs/images/w01_superposition.png)
+
+### Fourier Synthesiser (W02)
+
+![Fourier Synthesiser](docs/images/w02_fourier.png)
 
 ### Difficulty key
 
