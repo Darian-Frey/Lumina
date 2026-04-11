@@ -285,12 +285,12 @@ class MainWindow(QMainWindow):
         self._act_load = toolbar.addWidget(self._btn_load)
         self._act_load.setVisible(False)
 
-        self._btn_help = QPushButton("\u2753")
+        self._btn_help = QPushButton("?")
         self._btn_help.setFixedWidth(34)
         self._btn_help.setStyleSheet(
             "QPushButton { font-size: 14px; padding: 4px; "
-            "background-color: #17becf; color: white; border-radius: 4px; }"
-            "QPushButton:hover { background-color: #139bab; }"
+            "background-color: #1f77b4; color: white; border-radius: 4px; }"
+            "QPushButton:hover { background-color: #1a6aa5; }"
         )
         self._btn_help.setToolTip("Show help for this simulation")
         self._btn_help.clicked.connect(self._show_help)
