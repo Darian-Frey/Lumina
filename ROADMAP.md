@@ -62,8 +62,9 @@
 
 | Step | What | Status |
 |------|------|--------|
-| 4.11 | PyInstaller packaging — .AppImage (Linux) | Not started |
-| 4.12 | README update — installation instructions, screenshots | Not started |
+| 4.11 | Dark mode visual fix — theme-aware plots, cards, toolbar, module colours | ✅ Done |
+| 4.12 | PyInstaller packaging — .AppImage (Linux) | Not started |
+| 4.13 | README update — installation instructions, screenshots | Not started |
 
 ---
 
@@ -121,8 +122,12 @@
 | 2026-04-10 | Compute button (not auto-recompute on zoom) for AP01/AP02/P03 | Prevents cascading recompute freezes |
 | 2026-04-11 | 6 fractal types in FractalLab | Burning Ship, Tricorn, Multibrot, Newton added |
 | 2026-04-11 | Help system: ? button + tooltips | Option B + C from research — professional tools use both |
+| 2026-04-11 | Dashboard card redesign with category colour banners and icons | Professional polish — elevates from dev tool to product feel |
+| 2026-04-11 | Theme re-launches active simulation on change | Cleanest way to propagate plot colour changes without a global signal system |
+| 2026-04-11 | Cards and toolbar buttons inherit theme colours from Qt stylesheet | Removes hardcoded light-mode assumptions that broke dark mode |
+| 2026-04-11 | Plain `?` for help button instead of emoji | Unicode emoji had fixed red/brown rendering that clashed with the blue button |
 
 ---
 
-*Last updated: 2026-04-11*
+*Last updated: 2026-04-11 (dark mode pass complete)*
 *Maintainer: Darian-Frey*
