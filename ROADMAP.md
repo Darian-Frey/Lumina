@@ -63,8 +63,10 @@
 | Step | What | Status |
 |------|------|--------|
 | 4.11 | Dark mode visual fix — theme-aware plots, cards, toolbar, module colours | ✅ Done |
-| 4.12 | PyInstaller packaging — .AppImage (Linux) | Not started |
-| 4.13 | README update — installation instructions, screenshots | Not started |
+| 4.12 | PyInstaller spec file + build script + packaging docs | ✅ Done |
+| 4.13 | README update — installation instructions, feature list, screenshots section | ✅ Done |
+
+**v0.1 ship checklist complete.** Only step left is running `./build.sh` on your machine and uploading screenshots to `docs/images/`.
 
 ---
 

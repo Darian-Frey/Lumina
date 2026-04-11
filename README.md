@@ -18,8 +18,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![PyQt6](https://img.shields.io/badge/PyQt6-6.0+-41CD52?logo=qt&logoColor=white)](https://pypi.org/project/PyQt6/)
-[![Simulations](https://img.shields.io/badge/Simulations-82-8A2BE2)](SIMS_SPEC.md)
-[![Status](https://img.shields.io/badge/Status-Early%20Development-orange)]()
+[![Simulations](https://img.shields.io/badge/v0.1-10%20Simulations-8A2BE2)](SIMS_SPEC.md)
+[![Tests](https://img.shields.io/badge/Tests-127%20passing-4caf50)]()
+[![Status](https://img.shields.io/badge/Status-v0.1%20Release-green)]()
 
 <br/>
 
@@ -52,7 +53,17 @@ Lumina lives in between. It is designed for the student who has outgrown classro
 | 📊 Applied Mathematics | 10 | 🟢 → 🔴 |
 | 🔬 Special Topics | 6 | 🔴 → 🟣 |
 
-**82 simulations total.** See [`SIMS_SPEC.md`](SIMS_SPEC.md) for the full specification, build status, and phased roadmap.
+**82 simulations planned. 10 shipping in v0.1.** See [`SIMS_SPEC.md`](SIMS_SPEC.md) for the full specification, build status, and phased roadmap.
+
+## Screenshots
+
+Add screenshots to `docs/images/` and reference them here. Suggested set:
+
+- `dashboard.png` — the module dashboard with category cards
+- `ap03_lorenz.png` — the Lorenz attractor in action
+- `p03_fractallab.png` — a deep zoom into the Mandelbrot set
+- `m10_pendulum.png` — the chaotic double pendulum mid-swing
+- `ap01_phase_portrait.png` — a Van der Pol phase portrait with streamlines
 
 ### Difficulty key
 
@@ -65,23 +76,35 @@ Lumina lives in between. It is designed for the student who has outgrown classro
 
 ---
 
-## Highlights
+## What's in v0.1
 
-**RotoCurve** ✅ — Fit MOND, CODA, and Newtonian dark matter models to real SPARC galaxy rotation curve data. The only tool of its kind outside of bespoke research scripts.
+Ten working simulations with 127 passing tests. Every module has been tested, polished, and documented.
 
-**Chaotic Double Pendulum** — Real-time trajectory tracing with Lyapunov exponent readout.
+### Simulations
 
-**Fourier Synthesiser** — Build any waveform from harmonics and watch the series converge live.
+| ID | Name | What it shows |
+|----|------|---------------|
+| **AP01** | ODE Phase Portrait | Vector fields, nullclines, fixed points with stability classification, editable equations, click-to-add trajectories |
+| **AP02** | Bifurcation Diagram | Logistic map period-doubling to chaos, Lyapunov exponent, zoom-recompute for high-resolution detail |
+| **AP03** | Lorenz Attractor | 3D strange attractor in four views, sensitivity to initial conditions, animated trajectories |
+| **M04** | Simple Harmonic Motion | Spring-mass and pendulum, phase space ellipses, energy exchange, damping regimes |
+| **M10** | Chaotic Double Pendulum | Real-time Lagrangian mechanics, trajectory trail, energy conservation check |
+| **P03** | FractalLab | Six fractal types: Mandelbrot, Julia, Burning Ship, Tricorn, Multibrot, Newton. Deep zoom with full-resolution recompute |
+| **T01** | Ideal Gas | 2D molecular dynamics with elastic collisions, live PV readout, speed histogram |
+| **T02** | Maxwell-Boltzmann | Speed distribution vs temperature, labelled v_mp / v_avg / v_rms markers |
+| **W01** | Wave Superposition | Five-wave mixer with colour-matched panels, beats and standing wave presets |
+| **W02** | Fourier Synthesiser | Square, triangle, sawtooth synthesis with Gibbs phenomenon demonstration |
 
-**Quantum Tunnelling** — Vary barrier width and height, watch transmission probability update instantly.
+### Features that set Lumina apart
 
-**Ising Model** — 2D ferromagnet with Metropolis Monte Carlo, visualise the phase transition as temperature sweeps through T_c.
-
-**FractalLab** — Mandelbrot and Julia sets with deep zoom and custom iteration rules.
-
-**Tiling Lab** — Penrose and Ammann-Beenker aperiodic tilings with local isomorphism explorer.
-
-**ODE Phase Portrait** — Nullclines, trajectories, fixed points, and stability classification for any 2D system.
+- **CSV + PNG export** on every simulation — no competitor offers this
+- **Editable equations** — modify the system ODE in AP01 and watch it re-integrate live
+- **Dark / light / high-contrast themes** with full plot support
+- **Colourblind-safe palette** (Okabe-Ito) toggle
+- **State save/load** to `.lumina` preset files — share parameter configurations
+- **Zoom limits and Reset View** on every plot to prevent getting lost in empty space
+- **Built-in help system** — `?` button per simulation + tooltips on every control
+- **Category-coded dashboard** with search, level filter, and icons
 
 ---
 
@@ -158,7 +181,12 @@ Full details in [`SIMS_SPEC.md`](SIMS_SPEC.md).
 
 ## Getting Started
 
-> Lumina is in early development. Installation instructions will be added at v0.1.
+### Requirements
+
+- Python 3.11 or later
+- Linux, macOS, or Windows
+
+### Install from source
 
 ```bash
 git clone https://github.com/Darian-Frey/Lumina.git
@@ -166,6 +194,30 @@ cd Lumina
 pip install -r requirements.txt
 python -m lumina
 ```
+
+On Linux, if you get a Qt `xcb` error, install the missing system library:
+
+```bash
+sudo apt install libxcb-cursor0
+```
+
+### Run the tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ lumina/modules/ -v
+```
+
+All 127 tests should pass.
+
+### Build a standalone executable
+
+```bash
+pip install pyinstaller
+./build.sh
+```
+
+This produces `dist/Lumina`, a single-file executable. See [`docs/packaging.md`](docs/packaging.md) for AppImage, .exe, and .dmg instructions.
 
 ---
 
@@ -192,5 +244,7 @@ MIT — see [`LICENSE`](LICENSE) for details.
 <div align="center">
 <br/>
 <sub>Built on a ThinkPad. Powered by curiosity.</sub>
+<br/>
+<sub>v0.1 — April 2026</sub>
 <br/><br/>
 </div>

@@ -46,6 +46,11 @@ Lumina uses [Semantic Versioning](https://semver.org/).
 - CSV + PNG export verified on all modules
 - Consistent 240px control panel width across all modules
 
+**Packaging**
+- `lumina.spec` — PyInstaller build specification with hidden imports for all modules
+- `build.sh` — one-command build script for a standalone executable
+- `docs/packaging.md` — AppImage, .exe, and .dmg packaging instructions
+
 **Project files**
 - `SIMS_SPEC.md` — master specification for all 82 planned simulations
 - `ROADMAP.md` — detailed build plan and decision log
@@ -53,6 +58,7 @@ Lumina uses [Semantic Versioning](https://semver.org/).
 - `pyproject.toml` — project metadata, black, ruff, mypy, pytest configuration
 - `.gitignore`, `requirements.txt`, `requirements-dev.txt`
 - GitHub issue templates for bug reports and simulation requests
+- README with screenshots, installation instructions, and feature list
 
 ---
 
